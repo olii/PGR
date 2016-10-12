@@ -1,0 +1,15 @@
+src/main.cpp
+src/main.h
+CMakeLists.txt
+src/objectgeometry.h
+src/objectgeometry.cpp
+src/vector3.h
+src/vector3.cpp
+src/ray.h
+src/ray.cpp
+src/point.h
+src/CMakeLists.txt
+src/camera.h
+src/camera.cpp
+src/plane.h
+src/plane.cpp
