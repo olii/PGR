@@ -27,3 +27,9 @@
 *.exe
 *.out
 *.app
+
+bssrdf.config
+bssrdf.creator
+bssrdf.creator.user
+bssrdf.files
+bssrdf.includes
