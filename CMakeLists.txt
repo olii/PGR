@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.5)
 project (bssrdf)
 set(CMAKE_GENERATOR "Ninja")
 find_package(SDL2 REQUIRED)

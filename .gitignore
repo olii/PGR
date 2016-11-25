@@ -27,9 +27,15 @@
 *.exe
 *.out
 *.app
+bssrdf
 
 bssrdf.config
 bssrdf.creator
 bssrdf.creator.user
 bssrdf.files
 bssrdf.includes
+
+CMakeCache.txt
+CMakeFiles/
+Makefile
+
