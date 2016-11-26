@@ -1,21 +1,20 @@
-#ifndef RAY_H
-#define RAY_H
+#ifndef BSSRDF_RAY_H
+#define BSSRDF_RAY_H
 
-#include "point.h"
-#include "vector3.h"
+#include <glm/glm.hpp>
 
 class Ray
 {
 public:
-    Ray(const Point& p, const Vector3& vec) : m_point(p), m_dir(vec) {}
-    Point operator()(float f) { return m_point + (m_dir * f); }
+	Ray(const glm::dvec3& origin, const glm::dvec3& direction);
 
-    const Point& GetOrigin() const { return m_point; }
-    const Vector3& GetDirection() const { return m_dir; }
+	const glm::dvec3& getOrigin() const;
+	const glm::dvec3& getDirection() const;
+
+	glm::dvec3 getPoint(double t) const;
 
 private:
-    Point m_point;
-    Vector3 m_dir;
+	glm::dvec3 _origin, _direction;
 };
 
-#endif   // RAY_H
+#endif

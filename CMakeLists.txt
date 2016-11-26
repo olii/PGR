@@ -1,17 +1,11 @@
-cmake_minimum_required(VERSION 3.5)
-project (bssrdf)
-set(CMAKE_GENERATOR "Ninja")
+cmake_minimum_required(VERSION 3.1)
+cmake_policy(SET CMP0004 OLD)
+
+project(BSSRDF CXX)
+
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake")
+
 find_package(SDL2 REQUIRED)
-message("SDL2 directory: " ${SDL2_INCLUDE_DIRS})
-
-# ultimatne flagy
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -g3 -O3")
-
-include_directories(${SDL2_INCLUDE_DIRS})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../install)
-
+find_package(glm REQUIRED)
 
 add_subdirectory(src)
-
-#add_executable(bssrdf src/main.cpp)
-#target_link_libraries (bssrdf main)
