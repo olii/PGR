@@ -15,7 +15,7 @@ const std::size_t ScreenHeight = 600;
 
 }
 
-int main()
+int main(int, char *[])
 {
 	auto window = SDL_CreateWindow("PGR - BSSRDF", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, ScreenWidth, ScreenHeight, 0);
 	auto surface = SDL_GetWindowSurface(window);
