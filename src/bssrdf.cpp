@@ -56,16 +56,16 @@ int main(int, char* [])
                     switch (event.key.keysym.sym)
                     {
                         case SDLK_w:
-                            camera.moveForward(0.05);
+                            camera.moveForward(0.25);
                             break;
                         case SDLK_s:
-                            camera.moveBackwards(0.05);
+                            camera.moveBackwards(0.25);
                             break;
                         case SDLK_a:
-                            camera.moveLeft(0.05);
+                            camera.moveLeft(0.25);
                             break;
                         case SDLK_d:
-                            camera.moveRight(0.05);
+                            camera.moveRight(0.25);
                             break;
                     }
                     break;
