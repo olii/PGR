@@ -28,6 +28,8 @@ void RayTracer::raytrace(const Camera& camera, const Scene& scene) const
 
 			if (nearestObject)
 				screen.putPixel(x, y, nearestObject->getMaterial().getColor());
+			else
+				screen.putPixel(x, y, screen.getBackgroundColor());
 		}
 	}
 }

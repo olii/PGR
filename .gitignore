@@ -38,3 +38,4 @@ bssrdf.includes
 CMakeCache.txt
 CMakeFiles/
 Makefile
+cmake_install.cmake
