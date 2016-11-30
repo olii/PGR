@@ -6,10 +6,10 @@ Light::Light(const glm::dvec3& position, const Color& color) : _position(positio
 
 const glm::dvec3& Light::getPosition() const
 {
-	return _position;
+    return _position;
 }
 
 const Color& Light::getColor() const
 {
-	return _color;
+    return _color;
 }

@@ -6,12 +6,12 @@
 class Material
 {
 public:
-	Material(const Color& color);
+    Material(const Color& color);
 
-	const Color& getColor() const;
+    const Color& getColor() const;
 
 private:
-	Color _color;
+    Color _color;
 };
 
 #endif

@@ -10,20 +10,20 @@
 class Scene
 {
 public:
-	Scene(const Light& light);
+    Scene(const Light& light);
 
-	void addObject(std::unique_ptr<Shape>&& object);
+    void addObject(std::unique_ptr<Shape>&& object);
 
-	const Light& getLight() const;
+    const Light& getLight() const;
 
-	auto begin() { return _objects.begin(); }
-	auto end() { return _objects.end(); }
-	auto begin() const { return _objects.begin(); }
-	auto end() const { return _objects.end(); }
+    auto begin() { return _objects.begin(); }
+    auto end() { return _objects.end(); }
+    auto begin() const { return _objects.begin(); }
+    auto end() const { return _objects.end(); }
 
 private:
-	Light _light;
-	std::vector<std::unique_ptr<Shape>> _objects;
+    Light _light;
+    std::vector<std::unique_ptr<Shape>> _objects;
 };
 
 #endif

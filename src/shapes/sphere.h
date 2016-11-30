@@ -6,14 +6,14 @@
 class Sphere : public Shape
 {
 public:
-	Sphere(const glm::dvec3& position, double radius, const Material& material);
+    Sphere(const glm::dvec3& position, double radius, const Material& material);
 
-	double getRadius() const;
+    double getRadius() const;
 
-	virtual bool intersects(const Ray& ray, double& hit) const override;
+    virtual bool intersects(const Ray& ray, double& hit) const override;
 
 private:
-	double _radius;
+    double _radius;
 };
 
 #endif
