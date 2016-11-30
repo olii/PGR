@@ -25,7 +25,7 @@ int main(int, char* [])
         return 1;
     }
 
-    Screen screen(surface, Colors::BlueBackground);
+    Screen screen(surface, Colors::DarkBackground);
     Camera camera(screen, {0.0, 5.0, 5.0}, {0.0, 0.0, 0.0});
 
     Material redMaterial("red"_rgb);

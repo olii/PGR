@@ -22,7 +22,7 @@ private:
 Color operator"" _rgb(const char* str, std::size_t);
 
 namespace Colors {
-static Color BlueBackground(34, 0, 78);
+static Color DarkBackground(34, 0, 78);
 }
 
 #endif
