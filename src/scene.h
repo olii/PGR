@@ -10,11 +10,15 @@
 class Scene
 {
 public:
-	Scene(const Light& light);
+    typedef std::vector<std::unique_ptr<Light>> Lights;
+    typedef std::vector<std::unique_ptr<Shape>> Objects;
 
-	void addObject(std::unique_ptr<Shape>&& object);
+    Scene();
 
-	const Light& getLight() const;
+    void addObject(std::unique_ptr<Shape>&& object);
+    void addLight(std::unique_ptr<Light>&& object);
+
+    const Lights& getLight() const;
 
 	auto begin() { return _objects.begin(); }
 	auto end() { return _objects.end(); }
@@ -22,8 +26,8 @@ public:
 	auto end() const { return _objects.end(); }
 
 private:
-	Light _light;
-	std::vector<std::unique_ptr<Shape>> _objects;
+    Lights _lights;
+    Objects _objects;
 };
 
 #endif
