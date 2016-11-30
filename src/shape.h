@@ -17,6 +17,7 @@ public:
     const Material& getMaterial() const { return _material; }
 
     virtual bool intersects(const Ray& ray, double& hit) const = 0;
+    virtual glm::dvec3 getNormal(const glm::dvec3& position) const = 0;
 
 protected:
     glm::dvec3 _position;

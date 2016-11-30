@@ -11,6 +11,7 @@ public:
     double getRadius() const;
 
     virtual bool intersects(const Ray& ray, double& hit) const override;
+    virtual glm::dvec3 getNormal(const glm::dvec3& position) const override;
 
 private:
     double _radius;

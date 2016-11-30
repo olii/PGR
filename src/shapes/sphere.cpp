@@ -43,3 +43,8 @@ bool Sphere::intersects(const Ray& ray, double& hit) const
     hit = NAN;
     return false;
 }
+
+glm::dvec3 Sphere::getNormal(const glm::dvec3& position) const
+{
+    return glm::normalize(position - getPosition());
+}
