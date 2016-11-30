@@ -28,9 +28,9 @@ void RayTracer::raytrace(const Camera& camera, const Scene& scene) const
 
             if (nearestObject)
             {
-                auto p = ray.getPoint(hit);
+                auto p = ray.getPoint(nearestHit);
                 auto normal = nearestObject->getNormal(p);
-                auto f = glm::dot(-normal, glm::normalize(ray.getDirection()));
+                auto f = glm::dot(normal, -ray.getDirection());
                 auto color = nearestObject->getMaterial().getColor() * f;
                 screen.putPixel(x, y, color);
             }
