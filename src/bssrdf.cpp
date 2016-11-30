@@ -32,7 +32,8 @@ int main(int, char *[])
     Material redMaterial("red"_rgb);
     Material greenMaterial("green"_rgb);
 
-    Scene scene(Light({0.0, 3.0, 0.0}, "white"_rgb));
+    Scene scene;
+    scene.addLight(std::make_unique<Light>(Light({0.0, 3.0, 0.0}, "white"_rgb)));
     scene.addObject(std::make_unique<Sphere>(glm::dvec3{0.0, 0.0, 0.0}, 1.0, redMaterial));
     scene.addObject(std::make_unique<Sphere>(glm::dvec3{0.0, 0.0, -2.0}, 1.0, greenMaterial));
 
