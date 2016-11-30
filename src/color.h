@@ -13,10 +13,16 @@ public:
     std::uint8_t getGreen() const;
     std::uint8_t getBlue() const;
 
+    Color operator*(float f) const;
+
 private:
     std::uint32_t _red, _green, _blue;
 };
 
-Color operator "" _rgb(const char* str, std::size_t);
+Color operator"" _rgb(const char* str, std::size_t);
+
+namespace Colors {
+static Color BlueBackground(34, 0, 78);
+}
 
 #endif
