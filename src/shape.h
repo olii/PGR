@@ -5,6 +5,7 @@
 
 #include "material.h"
 
+class Intersection;
 class Ray;
 
 class Shape
@@ -16,7 +17,7 @@ public:
     const glm::dvec3& getPosition() const { return _position; }
     const Material& getMaterial() const { return _material; }
 
-    virtual bool intersects(const Ray& ray, double& hit) const = 0;
+    virtual Intersection intersects(const Ray& ray) const = 0;
     virtual glm::dvec3 getNormal(const glm::dvec3& position) const = 0;
 
 protected:

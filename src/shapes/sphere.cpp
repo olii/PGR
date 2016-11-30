@@ -1,5 +1,6 @@
 #include <glm/gtx/norm.hpp>
 
+#include "intersection.h"
 #include "ray.h"
 #include "shapes/sphere.h"
 
@@ -12,7 +13,7 @@ double Sphere::getRadius() const
     return _radius;
 }
 
-bool Sphere::intersects(const Ray& ray, double& hit) const
+Intersection Sphere::intersects(const Ray& ray) const
 {
     const auto& origin = ray.getOrigin();
     const auto& direction = ray.getDirection();
@@ -28,20 +29,14 @@ bool Sphere::intersects(const Ray& ray, double& hit) const
         auto sqrtD = std::sqrt(D);
         auto solution = (-b - sqrtD) / (2.0 * a);
         if (solution > 0.0)
-        {
-            hit = solution;
-            return true;
-        }
+            return {solution, ray.getPoint(solution), this};
+
         solution = (-b + sqrtD) / (2.0 * a);
         if (solution > 0.0)
-        {
-            hit = solution;
-            return true;
-        }
+            return {solution, ray.getPoint(solution), this};
     }
 
-    hit = NAN;
-    return false;
+    return {};
 }
 
 glm::dvec3 Sphere::getNormal(const glm::dvec3& position) const

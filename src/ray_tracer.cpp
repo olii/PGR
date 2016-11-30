@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "intersection.h"
 #include "ray.h"
 #include "ray_tracer.h"
 #include "scene.h"
@@ -12,30 +13,31 @@ void RayTracer::raytrace(const Camera& camera, const Scene& scene) const
         for (std::uint32_t x = 0; x < screen.getWidth(); ++x)
         {
             auto ray = camera.getRay(x, y);
+            auto hit = _castRayToScene(ray, scene);
 
-            const Shape* nearestObject = nullptr;
-            double hit;
-            double nearestHit = std::numeric_limits<double>::max();
-
-            for (auto&& object : scene)
+            if (hit)
             {
-                if (object->intersects(ray, hit) && hit < nearestHit)
-                {
-                    nearestObject = object.get();
-                    nearestHit = hit;
-                }
-            }
-
-            if (nearestObject)
-            {
-                auto p = ray.getPoint(nearestHit);
-                auto normal = nearestObject->getNormal(p);
-                auto f = glm::dot(normal, -ray.getDirection());
-                auto color = nearestObject->getMaterial().getColor() * f;
+                auto object = hit.getObject();
+                auto normal = object->getNormal(hit.getPosition());
+                auto color = object->getMaterial().getColor() * std::max(glm::dot(normal, -ray.getDirection()), 0.0);
                 screen.putPixel(x, y, color);
             }
             else
                 screen.putPixel(x, y, screen.getBackgroundColor());
         }
     }
+}
+
+Intersection RayTracer::_castRayToScene(const Ray& ray, const Scene& scene) const
+{
+    Intersection nearestHit;
+
+    for (auto&& object : scene)
+    {
+        auto intersection = object->intersects(ray);
+        if (intersection.hit() && intersection.getDistance() < nearestHit.getDistance())
+            nearestHit = intersection;
+    }
+
+    return nearestHit;
 }
