@@ -10,13 +10,13 @@
 class Scene
 {
 public:
-    typedef std::vector<std::unique_ptr<Light>> Lights;
-    typedef std::vector<std::unique_ptr<Shape>> Objects;
+    using Lights = std::vector<std::unique_ptr<Light>>;
+    using Objects = std::vector<std::unique_ptr<Shape>>;
 
     Scene();
 
     void addObject(std::unique_ptr<Shape>&& object);
-    void addLight(std::unique_ptr<Light>&& object);
+    void addLight(std::unique_ptr<Light>&& light);
 
     const Lights& getLights() const;
 
