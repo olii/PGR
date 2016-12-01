@@ -44,9 +44,11 @@ int main(int, char* [])
     bool running = true;
     SDL_Event event;
 
+    bool redraw = true;
+
     while (running)
     {
-        while (SDL_PollEvent(&event) > 0)
+        while(SDL_PollEvent(&event) > 0)
         {
             switch (event.type)
             {
@@ -59,15 +61,19 @@ int main(int, char* [])
                     {
                         case SDLK_w:
                             camera.moveForward(0.25);
+                            redraw = true;
                             break;
                         case SDLK_s:
                             camera.moveBackwards(0.25);
+                            redraw = true;
                             break;
                         case SDLK_a:
                             camera.moveLeft(0.25);
+                            redraw = true;
                             break;
                         case SDLK_d:
                             camera.moveRight(0.25);
+                            redraw = true;
                             break;
                     }
                     break;
@@ -78,15 +84,18 @@ int main(int, char* [])
                     {
                         camera.turnRight(0.2 * event.motion.xrel * M_PI / 180.0);
                         camera.turnDown(0.2 * event.motion.yrel * M_PI / 180.0);
+                        redraw = true;
                     }
                     break;
                 }
             }
         }
-
-        raytracer.raytrace(camera, scene);
-
-        SDL_UpdateWindowSurface(window);
+        if (redraw)
+        {
+            raytracer.raytrace(camera, scene);
+            SDL_UpdateWindowSurface(window);
+            redraw = false;
+        }
     }
 
     return 0;

@@ -4,6 +4,11 @@
 #include "ray_tracer.h"
 #include "scene.h"
 
+namespace {
+constexpr bool AA_ENABLE = true;
+constexpr int AA_SAMPLES = 10;
+}
+
 void RayTracer::raytrace(const Camera& camera, const Scene& scene) const
 {
     auto& screen = camera.getScreen();
@@ -13,10 +18,10 @@ void RayTracer::raytrace(const Camera& camera, const Scene& scene) const
         for (std::uint32_t x = 0; x < screen.getWidth(); ++x)
         {
             Color color;
-            for (int samples = 0; samples < 5; samples++)
+            for (int samples = 0; samples < (AA_ENABLE?AA_SAMPLES:1); samples++)
             {
 
-                auto ray = camera.getRayAA(x, y);
+                auto ray = AA_ENABLE ? camera.getRayAA(x, y) : camera.getRay(x, y);
                 auto hit = _castRayToScene(ray, scene);
 
                 if (hit)
@@ -39,7 +44,8 @@ void RayTracer::raytrace(const Camera& camera, const Scene& scene) const
                     color += screen.getBackgroundColor();
                 }
             }
-            color /= 5.0;
+            if (AA_ENABLE)
+                color /= static_cast<double>(AA_SAMPLES);
             screen.putPixel(x, y, color);
         }
     }
