@@ -33,14 +33,14 @@ int main(int, char* [])
     Material greenMaterial("green"_rgb);
     Material blueMaterial("blue"_rgb);
 
-    Screen screen(surface, Colors::DarkBackground);
+    Screen screen(surface, "purple"_rgb);
     Scene scene({screen, {0.0, 2.0, 2.0}, {0.0, 0.0, 0.0}});
     scene.addLight(std::make_unique<Light>(Vector{0.0, 2.0, 2.0}, "white"_rgb));
     scene.addLight(std::make_unique<Light>(Vector{0.0, 1.0, -3.5}, "white"_rgb));
     scene.addObject(std::make_unique<Sphere>(Vector{0.0, 0.0, 0.0}, 1.0, redMaterial));
     scene.addObject(std::make_unique<Sphere>(Vector{0.0, -0.25, -2.0}, 1.0, greenMaterial));
     scene.addObject(std::make_unique<Sphere>(Vector{0.0, 0.0, -5.0}, 1.0, blueMaterial));
-    //scene.addObject(std::make_unique<Plane>(Vector{0.0, -125.0, 0.0}, Vector{0.0, 1.0, 0.0} , greenMaterial));
+    scene.addObject(std::make_unique<Plane>(Vector{0.0, -15.0, 0.0}, Vector{0.0, 1.0, 0.0} , greenMaterial));
 
     auto lightModel = std::make_unique<LambertianLightModel>();
 

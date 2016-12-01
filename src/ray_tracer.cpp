@@ -1,3 +1,5 @@
+#include <glm/gtx/norm.hpp>
+
 #include "camera.h"
 #include "intersection.h"
 #include "light_model.h"
@@ -48,7 +50,8 @@ std::vector<Vector> RayTracer::_castShadowRays(const Intersection& hitPoint, con
 
     for (const auto& light : scene.getLights())
     {
-        Ray shadowRay(hitPoint.getPosition(), light->getPosition() - hitPoint.getPosition());
+        auto lightDir = light->getPosition() - hitPoint.getPosition();
+        Ray shadowRay(hitPoint.getPosition(), lightDir);
 
         // Shadow rays may cause "shadow acne" because these rays will start hitting the object itself in almost zero distance
         // Let's just check whether the hit object is the same as our source object and check the distance against threshold
@@ -56,8 +59,8 @@ std::vector<Vector> RayTracer::_castShadowRays(const Intersection& hitPoint, con
             return hit.getObject() != hitPoint.getObject() || hit.getDistance() > 0.01;
         });
 
-        // We did not hit any object and since ray is in light's direction it must have hit the light
-        if (!hit)
+        // We did not hit any object or we hit object farther away than light
+        if (!hit || glm::length2(hit.getPosition() - hitPoint.getPosition()) > glm::length2(lightDir))
             result.push_back(shadowRay.getDirection());
         else
             result.push_back({NAN, NAN, NAN});

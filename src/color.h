@@ -12,8 +12,4 @@ Color operator*(const Color& color, double d);
 Color operator*(double d, const Color& color);
 Color& operator*=(Color& color, double d);
 
-namespace Colors {
-static Color DarkBackground(0.13f, 0.0f, 0.31f);
-}
-
 #endif
