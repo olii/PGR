@@ -6,7 +6,7 @@
 
 namespace {
 constexpr bool AA_ENABLE = false;
-constexpr int AA_SAMPLES = 10;
+constexpr int AA_SAMPLES = 25;
 }
 
 void RayTracer::raytrace(const Camera& camera, const Scene& scene) const

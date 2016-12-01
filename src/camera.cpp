@@ -10,7 +10,7 @@ const Vector Up = {0.0, 1.0, 0.0};
 }
 
 Camera::Camera(Screen& screen, const Vector& position, const Vector& lookAtPoint, double fov /* = 45.0*/)
-  : _screen(screen), _position(position), _lookAtPoint(lookAtPoint), _fov(fov), _rng(std::random_device{}()), _dist(0.0, 1.0)
+  : _screen(screen), _position(position), _lookAtPoint(lookAtPoint), _fov(fov), _rng(std::random_device{}()), _dist(-0.5,0.5)
 {
     _aspectRatio = static_cast<double>(screen.getWidth()) / static_cast<double>(screen.getHeight());
     _halfFovTan = tan(0.5 * fov * 180.0 / M_PI);
