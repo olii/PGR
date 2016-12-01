@@ -6,19 +6,17 @@
 
 #include "vector.h"
 
-class Camera;
 class Intersection;
+class LightModel;
 class Ray;
 class Scene;
 
 class RayTracer
 {
 public:
-    void raytrace(const Camera& camera, const Scene& scene) const;
+    void raytrace(const Scene& scene, LightModel* lightModel) const;
 
 private:
-    Intersection _castRayToScene(const Ray& ray, const Scene& scene) const;
-    Intersection _castRayToScene(const Ray& ray, const Scene& scene, const std::function<bool(const Intersection&)>& pred) const;
     std::vector<Vector> _castShadowRays(const Intersection& hitPoint, const Scene& scene) const;
 };
 

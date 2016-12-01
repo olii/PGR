@@ -38,7 +38,7 @@ Ray Camera::getRay(double x, double y) const
     //auto xNdc = (2.0 * (x + 0.5) / _screen.getWidth() - 1.0) * _halfFovTan * _aspectRatio;
     auto yNdc = _halfFovTan - _multiplierY * y + _multiplierX;
     //auto yNdc = (1.0 - (2.0 * (y + 0.5) / _screen.getHeight())) * _halfFovTan;
-    return Ray(_position, glm::normalize(_localForward + xNdc * _localRight + yNdc * _localUp));
+    return Ray(_position, _localForward + xNdc * _localRight + yNdc * _localUp);
 }
 
 Ray Camera::getRayAA(double x, double y) const

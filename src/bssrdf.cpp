@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 
 #include "camera.h"
+#include "light_models/lambertian_light_model.h"
 #include "ray.h"
 #include "ray_tracer.h"
 #include "scene.h"
@@ -25,19 +26,19 @@ int main(int, char* [])
         return 1;
     }
 
-    Screen screen(surface, Colors::DarkBackground);
-    Camera camera(screen, {0.0, 2.0, 2.0}, {0.0, 0.0, 0.0});
-
     Material redMaterial("red"_rgb);
     Material greenMaterial("green"_rgb);
     Material blueMaterial("blue"_rgb);
 
-    Scene scene;
+    Screen screen(surface, Colors::DarkBackground);
+    Scene scene({screen, {0.0, 2.0, 2.0}, {0.0, 0.0, 0.0}});
     scene.addLight(std::make_unique<Light>(Vector{0.0, 2.0, 2.0}, "white"_rgb));
     scene.addLight(std::make_unique<Light>(Vector{0.0, 1.0, -3.5}, "white"_rgb));
     scene.addObject(std::make_unique<Sphere>(Vector{0.0, 0.0, 0.0}, 1.0, redMaterial));
     scene.addObject(std::make_unique<Sphere>(Vector{0.0, -0.25, -2.0}, 1.0, greenMaterial));
     scene.addObject(std::make_unique<Sphere>(Vector{0.0, 0.0, -5.0}, 1.0, blueMaterial));
+
+    auto lightModel = std::make_unique<LambertianLightModel>();
 
     RayTracer raytracer;
 
@@ -60,19 +61,19 @@ int main(int, char* [])
                     switch (event.key.keysym.sym)
                     {
                         case SDLK_w:
-                            camera.moveForward(0.25);
+                            scene.getCamera().moveForward(0.25);
                             redraw = true;
                             break;
                         case SDLK_s:
-                            camera.moveBackwards(0.25);
+                            scene.getCamera().moveBackwards(0.25);
                             redraw = true;
                             break;
                         case SDLK_a:
-                            camera.moveLeft(0.25);
+                            scene.getCamera().moveLeft(0.25);
                             redraw = true;
                             break;
                         case SDLK_d:
-                            camera.moveRight(0.25);
+                            scene.getCamera().moveRight(0.25);
                             redraw = true;
                             break;
                     }
@@ -82,8 +83,8 @@ int main(int, char* [])
                 {
                     if (event.motion.state & SDL_BUTTON_RMASK)
                     {
-                        camera.turnRight(0.2 * event.motion.xrel * M_PI / 180.0);
-                        camera.turnDown(0.2 * event.motion.yrel * M_PI / 180.0);
+                        scene.getCamera().turnRight(0.2 * event.motion.xrel * M_PI / 180.0);
+                        scene.getCamera().turnDown(0.2 * event.motion.yrel * M_PI / 180.0);
                         redraw = true;
                     }
                     break;
@@ -92,7 +93,7 @@ int main(int, char* [])
         }
         if (redraw)
         {
-            raytracer.raytrace(camera, scene);
+            raytracer.raytrace(scene, lightModel.get());
             SDL_UpdateWindowSurface(window);
             redraw = false;
         }
