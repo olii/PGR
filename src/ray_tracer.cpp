@@ -12,27 +12,35 @@ void RayTracer::raytrace(const Camera& camera, const Scene& scene) const
     {
         for (std::uint32_t x = 0; x < screen.getWidth(); ++x)
         {
-            auto ray = camera.getRay(x, y);
-            auto hit = _castRayToScene(ray, scene);
-
-            if (hit)
+            Color color;
+            for (int samples = 0; samples < 5; samples++)
             {
-                auto object = hit.getObject();
-                auto normal = object->getNormal(hit.getPosition());
 
-                double diffuseTerm = 0.0;
-                auto shadowRayDirs = _castShadowRays(hit, scene);
-                for (const auto& shadowRayDir : shadowRayDirs)
+                auto ray = camera.getRayAA(x, y);
+                auto hit = _castRayToScene(ray, scene);
+
+                if (hit)
                 {
-                    if (!std::isnan(shadowRayDir.x))
-                        diffuseTerm = std::min(diffuseTerm + std::max(glm::dot(normal, shadowRayDir), 0.0), 1.0);
-                }
+                    auto object = hit.getObject();
+                    auto normal = object->getNormal(hit.getPosition());
 
-                auto color = object->getMaterial().getColor() * diffuseTerm;
-                screen.putPixel(x, y, color);
+                    double diffuseTerm = 0.0;
+                    auto shadowRayDirs = _castShadowRays(hit, scene);
+                    for (const auto& shadowRayDir : shadowRayDirs)
+                    {
+                        if (!std::isnan(shadowRayDir.x))
+                            diffuseTerm = std::min(diffuseTerm + std::max(glm::dot(normal, shadowRayDir), 0.0), 1.0);
+                    }
+
+                    color += object->getMaterial().getColor() * diffuseTerm;
+                }
+                else
+                {
+                    color += screen.getBackgroundColor();
+                }
             }
-            else
-                screen.putPixel(x, y, screen.getBackgroundColor());
+            color /= 5.0;
+            screen.putPixel(x, y, color);
         }
     }
 }
@@ -67,10 +75,9 @@ std::vector<Vector> RayTracer::_castShadowRays(const Intersection& hitPoint, con
 
         // Shadow rays may cause "shadow acne" because these rays will start hitting the object itself in almost zero distance
         // Let's just check whether the hit object is the same as our source object and check the distance against threshold
-        auto hit = _castRayToScene(shadowRay, scene, [&hitPoint](auto hit)
-                {
-                    return hit.getObject() != hitPoint.getObject() || hit.getDistance() > 0.01;
-                });
+        auto hit = _castRayToScene(shadowRay, scene, [&hitPoint](auto hit) {
+            return hit.getObject() != hitPoint.getObject() || hit.getDistance() > 0.01;
+        });
 
         // We did not hit any object and since ray is in light's direction it must have hit the light
         if (!hit)

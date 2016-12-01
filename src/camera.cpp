@@ -1,5 +1,4 @@
 #include <glm/gtx/rotate_vector.hpp>
-
 #include "camera.h"
 #include "color.h"
 #include "ray.h"
@@ -7,15 +6,23 @@
 
 namespace {
 
-const Vector Up = { 0.0, 1.0, 0.0 };
-
+const Vector Up = {0.0, 1.0, 0.0};
 }
 
-Camera::Camera(Screen& screen, const Vector& position, const  Vector& lookAtPoint, double fov/* = 45.0*/)
-    : _screen(screen), _position(position), _lookAtPoint(lookAtPoint), _fov(fov)
+Camera::Camera(Screen& screen, const Vector& position, const Vector& lookAtPoint, double fov /* = 45.0*/)
+  : _screen(screen), _position(position), _lookAtPoint(lookAtPoint), _fov(fov), _rng(std::random_device{}()), _dist(0.0, 1.0)
 {
     _aspectRatio = static_cast<double>(screen.getWidth()) / static_cast<double>(screen.getHeight());
     _halfFovTan = tan(0.5 * fov * 180.0 / M_PI);
+
+    _halfFovTan_aspectRatio = _halfFovTan * _aspectRatio;
+    _screenW = _screen.getWidth();
+    _multiplierB = _halfFovTan_aspectRatio / _screenW;
+    _multiplierA = 2.0 * _multiplierB;
+    _multiplierC = _multiplierA - _halfFovTan_aspectRatio;
+
+    _multiplierX = _halfFovTan / _screen.getHeight();
+    _multiplierY = _multiplierX * 2.0;
 
     _calculateLocalSpace();
 }
@@ -27,9 +34,18 @@ Screen& Camera::getScreen() const
 
 Ray Camera::getRay(double x, double y) const
 {
-    auto xNdc = (2.0 * (x + 0.5) / _screen.getWidth() - 1.0) * _halfFovTan * _aspectRatio;
-    auto yNdc = (1.0 - (2.0 * (y + 0.5) / _screen.getHeight())) * _halfFovTan;
-    return Ray(_position, glm::normalize(_localForward + xNdc*_localRight + yNdc*_localUp));
+    auto xNdc = (x * _multiplierA) + _multiplierC;
+    //auto xNdc = (2.0 * (x + 0.5) / _screen.getWidth() - 1.0) * _halfFovTan * _aspectRatio;
+    auto yNdc = _halfFovTan - _multiplierY * y + _multiplierX;
+    //auto yNdc = (1.0 - (2.0 * (y + 0.5) / _screen.getHeight())) * _halfFovTan;
+    return Ray(_position, glm::normalize(_localForward + xNdc * _localRight + yNdc * _localUp));
+}
+
+Ray Camera::getRayAA(double x, double y) const
+{
+    const double xx = x + _random();
+    const double yy = y + _random();
+    return getRay(xx, yy);
 }
 
 void Camera::moveForward(double step)

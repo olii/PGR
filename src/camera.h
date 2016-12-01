@@ -3,6 +3,7 @@
 
 #include "screen.h"
 #include "vector.h"
+#include <random>
 
 class Ray;
 
@@ -13,6 +14,7 @@ public:
 
     Screen& getScreen() const;
     Ray getRay(double x, double y) const;
+    Ray getRayAA(double x, double y) const;
 
     void moveForward(double step);
     void moveBackwards(double step);
@@ -26,6 +28,7 @@ public:
 
 private:
     void _calculateLocalSpace();
+    inline double _random() const { return _dist(_rng); }
 
     Screen& _screen;
     Vector _position, _lookAtPoint;
@@ -34,6 +37,19 @@ private:
     double _aspectRatio;
     double _halfFovTan;
     Vector _localForward, _localUp, _localRight;
+
+    // random AA
+    mutable std::mt19937 _rng;
+    mutable std::uniform_real_distribution<double> _dist;
+
+    // precomputed values
+    double _halfFovTan_aspectRatio;
+    uint32_t _screenW;
+    double _multiplierA;
+    double _multiplierB;
+    double _multiplierC;
+    double _multiplierX;
+    double _multiplierY;
 };
 
 #endif
