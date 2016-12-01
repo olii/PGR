@@ -9,6 +9,8 @@
 #include "ray_tracer.h"
 #include "scene.h"
 #include "shapes/sphere.h"
+#include <chrono>
+#include <thread>
 
 namespace {
 
@@ -97,6 +99,10 @@ int main(int, char* [])
             SDL_UpdateWindowSurface(window);
             redraw = false;
         }
+	else 
+	{
+	    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+	}
     }
 
     return 0;
