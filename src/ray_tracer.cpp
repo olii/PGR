@@ -5,7 +5,7 @@
 #include "scene.h"
 
 namespace {
-constexpr bool AA_ENABLE = true;
+constexpr bool AA_ENABLE = false;
 constexpr int AA_SAMPLES = 10;
 }
 
