@@ -1,10 +1,10 @@
 #include "light.h"
 
-Light::Light(const glm::dvec3& position, const Color& color) : _position(position), _color(color)
+Light::Light(const Vector& position, const Color& color) : _position(position), _color(color)
 {
 }
 
-const glm::dvec3& Light::getPosition() const
+const Vector& Light::getPosition() const
 {
     return _position;
 }

@@ -1,20 +1,20 @@
 #ifndef BSSRDF_RAY_H
 #define BSSRDF_RAY_H
 
-#include <glm/glm.hpp>
+#include "vector.h"
 
 class Ray
 {
 public:
-    Ray(const glm::dvec3& origin, const glm::dvec3& direction);
+    Ray(const Vector& origin, const Vector& direction);
 
-    const glm::dvec3& getOrigin() const;
-    const glm::dvec3& getDirection() const;
+    const Vector& getOrigin() const;
+    const Vector& getDirection() const;
 
-    glm::dvec3 getPoint(double t) const;
+    Vector getPoint(double t) const;
 
 private:
-    glm::dvec3 _origin, _direction;
+    Vector _origin, _direction;
 };
 
 #endif

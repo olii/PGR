@@ -7,7 +7,6 @@
 
 #include "color.h"
 
-class Color;
 class Ray;
 
 class Screen

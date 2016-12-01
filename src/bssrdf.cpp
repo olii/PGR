@@ -26,16 +26,18 @@ int main(int, char* [])
     }
 
     Screen screen(surface, Colors::DarkBackground);
-    Camera camera(screen, {0.0, 5.0, 5.0}, {0.0, 0.0, 0.0});
+    Camera camera(screen, {0.0, 2.0, 2.0}, {0.0, 0.0, 0.0});
 
     Material redMaterial("red"_rgb);
     Material greenMaterial("green"_rgb);
+    Material blueMaterial("blue"_rgb);
 
     Scene scene;
-    scene.addLight(std::make_unique<Light>(glm::dvec3{0.0, 3.0, 0.0}, "white"_rgb));
-    scene.addObject(std::make_unique<Sphere>(glm::dvec3{0.0, 0.0, 0.0}, 1.0, redMaterial));
-    scene.addObject(std::make_unique<Sphere>(glm::dvec3{0.0, 0.0, -2.0}, 1.0, greenMaterial));
-    scene.addObject(std::make_unique<Sphere>(glm::dvec3{0.0, 0.0, -5.0}, 1.0, greenMaterial));
+    scene.addLight(std::make_unique<Light>(Vector{0.0, 2.0, 2.0}, "white"_rgb));
+    scene.addLight(std::make_unique<Light>(Vector{0.0, 1.0, -3.5}, "white"_rgb));
+    scene.addObject(std::make_unique<Sphere>(Vector{0.0, 0.0, 0.0}, 1.0, redMaterial));
+    scene.addObject(std::make_unique<Sphere>(Vector{0.0, -0.25, -2.0}, 1.0, greenMaterial));
+    scene.addObject(std::make_unique<Sphere>(Vector{0.0, 0.0, -5.0}, 1.0, blueMaterial));
 
     RayTracer raytracer;
 

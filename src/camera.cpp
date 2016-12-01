@@ -7,11 +7,11 @@
 
 namespace {
 
-const glm::dvec3 Up = { 0.0, 1.0, 0.0 };
+const Vector Up = { 0.0, 1.0, 0.0 };
 
 }
 
-Camera::Camera(Screen& screen, const glm::dvec3& position, const  glm::dvec3& lookAtPoint, double fov/* = 45.0*/)
+Camera::Camera(Screen& screen, const Vector& position, const  Vector& lookAtPoint, double fov/* = 45.0*/)
     : _screen(screen), _position(position), _lookAtPoint(lookAtPoint), _fov(fov)
 {
     _aspectRatio = static_cast<double>(screen.getWidth()) / static_cast<double>(screen.getHeight());

@@ -4,7 +4,7 @@ Intersection::Intersection() : _distance(std::numeric_limits<double>::max()), _p
 {
 }
 
-Intersection::Intersection(double distance, const glm::dvec3& position, const Shape* object) : _distance(distance), _position(position), _object(object)
+Intersection::Intersection(double distance, const Vector& position, const Shape* object) : _distance(distance), _position(position), _object(object)
 {
 }
 
@@ -23,7 +23,7 @@ double Intersection::getDistance() const
     return _distance;
 }
 
-const glm::dvec3& Intersection::getPosition() const
+const Vector& Intersection::getPosition() const
 {
     return _position;
 }

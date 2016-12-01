@@ -1,28 +1,19 @@
 #ifndef BSSRDF_COLOR_H
 #define BSSRDF_COLOR_H
 
+#include <glm/glm.hpp>
+
 #include <cstdint>
 
-class Color
-{
-public:
-    Color(std::uint8_t red, std::uint8_t green, std::uint8_t blue);
-    Color(std::uint32_t rgba);
-
-    std::uint8_t getRed() const;
-    std::uint8_t getGreen() const;
-    std::uint8_t getBlue() const;
-
-    Color operator*(float f) const;
-
-private:
-    std::uint32_t _red, _green, _blue;
-};
+using Color = glm::vec3;
 
 Color operator"" _rgb(const char* str, std::size_t);
+Color operator*(const Color& color, double d);
+Color operator*(double d, const Color& color);
+Color& operator*=(Color& color, double d);
 
 namespace Colors {
-static Color DarkBackground(34, 0, 78);
+static Color DarkBackground(0.13f, 0.0f, 0.31f);
 }
 
 #endif

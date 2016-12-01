@@ -2,45 +2,34 @@
 
 #include "color.h"
 
-Color::Color(std::uint8_t red, std::uint8_t green, std::uint8_t blue) : _red(red), _green(green), _blue(blue)
-{
-}
-
-Color::Color(std::uint32_t rgba) : _red((rgba >> 24) & 0xFF), _green((rgba >> 16) & 0xFF), _blue((rgba >> 8) & 0xFF)
-{
-}
-
-std::uint8_t Color::getRed() const
-{
-    return _red;
-}
-
-std::uint8_t Color::getGreen() const
-{
-    return _green;
-}
-
-std::uint8_t Color::getBlue() const
-{
-    return _blue;
-}
-
-Color Color::operator*(float f) const
-{
-    // f value must be in interval <0,1>
-    return Color(_red * f, _green * f, _blue * f);
-}
-
 Color operator"" _rgb(const char* str, std::size_t)
 {
     if (std::strcmp(str, "white") == 0)
-        return {0xFF, 0xFF, 0xFF};
+        return {1.0f, 1.0f, 1.0f};
     else if (std::strcmp(str, "red") == 0)
-        return {0xFF, 0x00, 0x00};
+        return {1.0f, 0.0f, 0.0f};
     else if (std::strcmp(str, "green") == 0)
-        return {0x00, 0xFF, 0x00};
+        return {0.0f, 1.0f, 0.0f};
     else if (std::strcmp(str, "blue") == 0)
-        return {0x00, 0x00, 0xFF};
+        return {0.0f, 0.0f, 1.0f};
 
-    return {0x00, 0x00, 0x00};
+    return {0.0f, 0.0f, 0.0f};
+}
+
+Color operator*(const Color& color, double d)
+{
+    return { color.r * d, color.g * d, color.b * d };
+}
+
+Color operator*(double d, const Color& color)
+{
+    return color * d;
+}
+
+Color& operator*=(Color& color, double d)
+{
+    color.r *= d;
+    color.g *= d;
+    color.b *= d;
+    return color;
 }

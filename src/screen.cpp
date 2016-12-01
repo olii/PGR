@@ -27,5 +27,5 @@ void Screen::putPixel(std::uint32_t x, std::uint32_t y, const Color& color)
         return;
 
     auto pixels = static_cast<std::uint32_t*>(_impl->pixels);
-    pixels[y * _impl->w + x] = SDL_MapRGB(_impl->format, color.getRed(), color.getGreen(), color.getBlue());
+    pixels[y * _impl->w + x] = SDL_MapRGB(_impl->format, color.r * 255, color.g * 255, color.b * 255);
 }

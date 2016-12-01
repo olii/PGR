@@ -4,7 +4,7 @@
 #include "ray.h"
 #include "shapes/sphere.h"
 
-Sphere::Sphere(const glm::dvec3& position, double radius, const Material& material) : Shape(position, material), _radius(radius)
+Sphere::Sphere(const Vector& position, double radius, const Material& material) : Shape(position, material), _radius(radius)
 {
 }
 
@@ -39,7 +39,7 @@ Intersection Sphere::intersects(const Ray& ray) const
     return {};
 }
 
-glm::dvec3 Sphere::getNormal(const glm::dvec3& position) const
+Vector Sphere::getNormal(const Vector& position) const
 {
     return glm::normalize(position - getPosition());
 }

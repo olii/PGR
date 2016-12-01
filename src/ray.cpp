@@ -1,20 +1,20 @@
 #include "ray.h"
 
-Ray::Ray(const glm::dvec3& origin, const glm::dvec3& direction) : _origin(origin), _direction(direction)
+Ray::Ray(const Vector& origin, const Vector& direction) : _origin(origin), _direction(glm::normalize(direction))
 {
 }
 
-const glm::dvec3& Ray::getOrigin() const
+const Vector& Ray::getOrigin() const
 {
     return _origin;
 }
 
-const glm::dvec3& Ray::getDirection() const
+const Vector& Ray::getDirection() const
 {
     return _direction;
 }
 
-glm::dvec3 Ray::getPoint(double t) const
+Vector Ray::getPoint(double t) const
 {
     return _origin + t * _direction;
 }

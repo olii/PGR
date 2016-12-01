@@ -1,20 +1,19 @@
 #ifndef BSSRDF_LIGHT_H
 #define BSSRDF_LIGHT_H
 
-#include <glm/glm.hpp>
-
 #include "color.h"
+#include "vector.h"
 
 class Light
 {
 public:
-    Light(const glm::dvec3& position, const Color& color);
+    Light(const Vector& position, const Color& color);
 
-    const glm::dvec3& getPosition() const;
+    const Vector& getPosition() const;
     const Color& getColor() const;
 
 private:
-    glm::dvec3 _position;
+    Vector _position;
     Color _color;
 };
 
