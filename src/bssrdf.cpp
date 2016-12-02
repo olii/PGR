@@ -82,6 +82,9 @@ int main(int, char* [])
                             scene.getCamera().moveRight(0.25);
                             redraw = true;
                             break;
+			case SDLK_F12:
+			    screen.export_image();
+			    break;
                     }
                     break;
                 }

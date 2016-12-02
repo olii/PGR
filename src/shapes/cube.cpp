@@ -25,9 +25,6 @@ Intersection Cube::intersects(const Ray& ray) const
     double tmin = (_bounds[0].x - O.x) / D.x;
     double tmax = (_bounds[1].x - O.x) / D.x;
 
-    double tmin = (_bounds[0].x - O.x) / D.x;
-    double tmax = (_bounds[1].x - O.x) / D.x;
-
     if (tmin > tmax)
         std::swap(tmin, tmax);
 

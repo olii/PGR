@@ -19,10 +19,12 @@ public:
     const Color& getBackgroundColor() const;
 
     void putPixel(std::uint32_t x, std::uint32_t y, const Color& color);
+    void export_image();
 
 private:
     SDL_Surface* _impl;
     Color _backgroundColor;
+    std::uint16_t _i;
 };
 
 #endif
