@@ -1,27 +1,21 @@
-
-
-
-
-
 #ifndef BSSRDF_CUBE_H
 #define BSSRDF_CUBE_H
 
-#include "shape.h"
+#include <array>
 
+#include "shape.h"
 
 class Cube : public Shape
 {
 public:
-   Cube(const Vector& position, const Material& material, float edge);
+   Cube(const Vector& position, const Material& material, double edge);
 
-   virtual ~Cube() = default;
-
-   virtual Intersection intersects(const Ray& ray) const;
-   virtual Vector getNormal(const Vector& position) const;
+   virtual Intersection intersects(const Ray& ray) const override;
+   virtual Vector getNormal(const Vector& position) const override;
 
 protected:
-   const float _a; 	// size of the edge 
-   Vector _bounds[2];
+   double _edge; // size of the edge
+   std::array<Vector, 2> _bounds;
 };
 
 
