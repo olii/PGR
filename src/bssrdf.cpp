@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <memory>
 
@@ -10,6 +11,7 @@
 #include "scene.h"
 #include "shapes/sphere.h"
 #include "shapes/plane.h"
+#include "shapes/cube.h"
 #include <chrono>
 #include <thread>
 
@@ -40,8 +42,8 @@ int main(int, char* [])
     scene.addObject(std::make_unique<Sphere>(Vector{0.0, 0.0, 0.0}, 1.0, redMaterial));
     scene.addObject(std::make_unique<Sphere>(Vector{0.0, -0.25, -2.0}, 1.0, greenMaterial));
     scene.addObject(std::make_unique<Sphere>(Vector{0.0, 0.0, -5.0}, 1.0, blueMaterial));
-    scene.addObject(std::make_unique<Plane>(Vector{0.0, -15.0, 0.0}, Vector{0.0, 1.0, 0.0} , greenMaterial));
-
+//    scene.addObject(std::make_unique<Plane>(Vector{0.0, -15.0, 0.0}, Vector{0.0, 1.0, 0.0} , greenMaterial)); 
+    scene.addObject(std::make_unique<Cube>(Vector(0, 0, 0), blueMaterial, 2.0));
     auto lightModel = std::make_unique<LambertianLightModel>();
 
     RayTracer raytracer;
