@@ -4,7 +4,13 @@
 #include "ray.h"
 #include "shapes/sphere.h"
 
-Sphere::Sphere(const Vector& position, double radius, const Material& material) : Shape(position, material), _radius(radius)
+Sphere::Sphere(const Vector& position, double radius, const std::shared_ptr<Material>& material)
+    : Shape(position, material), _radius(radius)
+{
+}
+
+Sphere::Sphere(const Vector& position, double radius, std::shared_ptr<Material>&& material)
+    : Shape(position, std::move(material)), _radius(radius)
 {
 }
 

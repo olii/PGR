@@ -4,13 +4,24 @@
 #include "intersection.h"
 #include "ray.h"
 
-Cube::Cube(const Vector& pos, const Material& material, double edge)
+Cube::Cube(const Vector& pos, double edge, const std::shared_ptr<Material>& material)
    : Shape(pos, material), _edge(edge)
 {
-   const double edge2 = edge / 2.0;
+    _init();
+}
 
-   _bounds[0] = {pos.x - edge2, pos.y - edge2, pos.z - edge2}; // lower front left
-   _bounds[1] = {pos.x + edge2, pos.y + edge2, pos.z + edge2}; // upper back right
+Cube::Cube(const Vector& pos, double edge, std::shared_ptr<Material>&& material)
+   : Shape(pos, std::move(material)), _edge(edge)
+{
+    _init();
+}
+
+void Cube::_init()
+{
+   const double edge2 = _edge / 2.0;
+
+   _bounds[0] = {_position.x - edge2, _position.y - edge2, _position.z - edge2}; // lower front left
+   _bounds[1] = {_position.x + edge2, _position.y + edge2, _position.z + edge2}; // upper back right
 }
 
 /*

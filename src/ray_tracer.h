@@ -4,20 +4,20 @@
 #include <functional>
 #include <vector>
 
+#include "light.h"
 #include "vector.h"
 
 class Intersection;
-class LightModel;
 class Ray;
 class Scene;
 
 class RayTracer
 {
 public:
-    void raytrace(const Scene& scene, LightModel* lightModel) const;
+    void raytrace(const Scene& scene) const;
 
 private:
-    std::vector<Vector> _castShadowRays(const Intersection& hitPoint, const Scene& scene) const;
+    std::vector<const Light*> _castShadowRays(const Intersection& hitPoint, const Scene& scene) const;
 };
 
 #endif

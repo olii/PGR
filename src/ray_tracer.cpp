@@ -2,7 +2,6 @@
 
 #include "camera.h"
 #include "intersection.h"
-#include "light_model.h"
 #include "ray.h"
 #include "ray_tracer.h"
 #include "scene.h"
@@ -12,7 +11,7 @@ constexpr bool AA_ENABLE = false;
 constexpr int AA_SAMPLES = 25;
 }
 
-void RayTracer::raytrace(const Scene& scene, LightModel* lightModel) const
+void RayTracer::raytrace(const Scene& scene) const
 {
     auto& screen = scene.getCamera().getScreen();
 
@@ -28,8 +27,8 @@ void RayTracer::raytrace(const Scene& scene, LightModel* lightModel) const
 
                 if (hit)
                 {
-                    auto shadowRayDirs = _castShadowRays(hit, scene);
-                    color += lightModel->calculateColor(hit, scene, shadowRayDirs);
+                    auto visibleLights = _castShadowRays(hit, scene);
+                    color += hit.getObject()->getMaterial()->calculateColor(hit, scene, visibleLights);
                 }
                 else
                 {
@@ -43,9 +42,9 @@ void RayTracer::raytrace(const Scene& scene, LightModel* lightModel) const
     }
 }
 
-std::vector<Vector> RayTracer::_castShadowRays(const Intersection& hitPoint, const Scene& scene) const
+std::vector<const Light*> RayTracer::_castShadowRays(const Intersection& hitPoint, const Scene& scene) const
 {
-    std::vector<Vector> result;
+    std::vector<const Light*> result;
     result.reserve(scene.getLights().size());
 
     for (const auto& light : scene.getLights())
@@ -61,9 +60,7 @@ std::vector<Vector> RayTracer::_castShadowRays(const Intersection& hitPoint, con
 
         // We did not hit any object or we hit object farther away than light
         if (!hit || glm::length2(hit.getPosition() - hitPoint.getPosition()) > glm::length2(lightDir))
-            result.push_back(shadowRay.getDirection());
-        else
-            result.push_back({NAN, NAN, NAN});
+            result.push_back(light.get());
     }
 
     return result;

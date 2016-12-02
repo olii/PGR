@@ -14,6 +14,7 @@ public:
     operator bool() const;
 
     bool hit() const;
+    bool miss() const;
 
     double getDistance() const;
     const Vector& getPosition() const;

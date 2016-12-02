@@ -5,7 +5,7 @@
 #include <SDL2/SDL.h>
 
 #include "camera.h"
-#include "light_models/lambertian_light_model.h"
+#include "materials/brdf_material.h"
 #include "ray.h"
 #include "ray_tracer.h"
 #include "scene.h"
@@ -14,6 +14,8 @@
 #include "shapes/cube.h"
 #include <chrono>
 #include <thread>
+
+using namespace std::literals;
 
 namespace {
 
@@ -31,9 +33,9 @@ int main(int, char* [])
         return 1;
     }
 
-    Material redMaterial("red"_rgb);
-    Material greenMaterial("green"_rgb);
-    Material blueMaterial("blue"_rgb);
+    auto redMaterial = std::make_shared<BrdfMaterial>("red"_rgb, 1.0, 1.0);
+    auto greenMaterial = std::make_shared<BrdfMaterial>("green"_rgb, 1.0, 1.0);
+    auto blueMaterial = std::make_shared<BrdfMaterial>("blue"_rgb, 1.0, 1.0);
 
     Screen screen(surface, "purple"_rgb);
     Scene scene({screen, {0.0, 2.0, 2.0}, {0.0, 0.0, 0.0}});
@@ -43,8 +45,7 @@ int main(int, char* [])
     scene.addObject(std::make_unique<Sphere>(Vector{0.0, -0.25, -2.0}, 1.0, greenMaterial));
     scene.addObject(std::make_unique<Sphere>(Vector{0.0, 0.0, -5.0}, 1.0, blueMaterial));
 //    scene.addObject(std::make_unique<Plane>(Vector{0.0, -15.0, 0.0}, Vector{0.0, 1.0, 0.0} , greenMaterial)); 
-    scene.addObject(std::make_unique<Cube>(Vector{-3.0, 0.0, -1.0}, blueMaterial, 2.0));
-    auto lightModel = std::make_unique<LambertianLightModel>();
+    scene.addObject(std::make_unique<Cube>(Vector{-3.0, 0.0, -1.0}, 2.0, blueMaterial));
 
     RayTracer raytracer;
 
@@ -82,9 +83,9 @@ int main(int, char* [])
                             scene.getCamera().moveRight(0.25);
                             redraw = true;
                             break;
-			case SDLK_F12:
-			    screen.export_image();
-			    break;
+                        case SDLK_F12:
+                            screen.exportImage();
+                            break;
                     }
                     break;
                 }
@@ -102,14 +103,14 @@ int main(int, char* [])
         }
         if (redraw)
         {
-            raytracer.raytrace(scene, lightModel.get());
+            raytracer.raytrace(scene);
             SDL_UpdateWindowSurface(window);
             redraw = false;
         }
-	else 
-	{
-	    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-	}
+        else
+        {
+            std::this_thread::sleep_for(50ms);
+        }
     }
 
     return 0;

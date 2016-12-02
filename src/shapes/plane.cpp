@@ -2,8 +2,13 @@
 #include "intersection.h"
 #include "ray.h"
 
-Plane::Plane(const Vector& position, const Vector& normal, const Material& material)
-  : Shape(position, material), _normal(glm::normalize(normal))
+Plane::Plane(const Vector& position, const Vector& normal, const std::shared_ptr<Material>& material)
+    : Shape(position, material), _normal(glm::normalize(normal))
+{
+}
+
+Plane::Plane(const Vector& position, const Vector& normal, std::shared_ptr<Material>&& material)
+    : Shape(position, std::move(material)), _normal(glm::normalize(normal))
 {
 }
 

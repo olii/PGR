@@ -18,6 +18,11 @@ bool Intersection::hit() const
     return _object != nullptr;
 }
 
+bool Intersection::miss() const
+{
+    return !hit();
+}
+
 double Intersection::getDistance() const
 {
     return _distance;

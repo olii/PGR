@@ -6,7 +6,8 @@
 class Sphere : public Shape
 {
 public:
-    Sphere(const Vector& position, double radius, const Material& material);
+    Sphere(const Vector& position, double radius, const std::shared_ptr<Material>& material);
+    Sphere(const Vector& position, double radius, std::shared_ptr<Material>&& material);
 
     double getRadius() const;
 

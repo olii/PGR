@@ -33,10 +33,10 @@ void Screen::putPixel(std::uint32_t x, std::uint32_t y, const Color& color)
     pixels[y * _impl->w + x] = SDL_MapRGB(_impl->format, color.r * 255, color.g * 255, color.b * 255);
 }
 
-void Screen::export_image()
+void Screen::exportImage()
 {
-   std::string filename = "bssrdf_" + std::to_string(_i++)+".bmp";
-   SDL_SaveBMP( _impl, filename.c_str());
-   std::cout << "Image saved to: " << filename << std::endl;
+    std::string filename = "bssrdf_" + std::to_string(_i++) + ".bmp";
+    SDL_SaveBMP(_impl, filename.c_str());
+    std::cout << "Image saved to: " << filename << std::endl;
 }
 
