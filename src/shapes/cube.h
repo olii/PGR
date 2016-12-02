@@ -22,8 +22,6 @@ public:
 protected:
    const float _a; 	// size of the edge 
    Vector _bounds[2];
-
-   Vector _vertices[8];
 };
 
 

@@ -10,11 +10,9 @@ Cube::Cube(const Vector& pos, const Material& material, float edge) :
    Shape(pos, material), _a(edge) 
 {
    const float edge2 = edge / 2.0f;
-   const Vector p0 = {pos.x-edge2, pos.y-edge2, pos.z-edge2}; // lower front left
-   const Vector p1 = {pos.x+edge2, pos.y+edge2, pos.z+edge2}; // upper back right
 
-   _bounds[0] = p0;
-   _bounds[1] = p1;
+   _bounds[0] = {pos.x-edge2, pos.y-edge2, pos.z-edge2}; // lower front left
+   _bounds[1] = {pos.x+edge2, pos.y+edge2, pos.z+edge2}; // upper back right
 }
 
 /*
@@ -23,7 +21,7 @@ Cube::Cube(const Vector& pos, const Material& material, float edge) :
  */
 Intersection Cube::intersects(const Ray& ray) const
 {
-   FLOAT t0x, t1x, t0y, t1y, t0z, t1z, Dx, Dy, Dz, Ox, Oy, Oz, x, y, z;
+   FLOAT t0x, t1x, t0y, t1y, t0z, t1z, Dx, Dy, Dz, Ox, Oy, Oz;
    Dx = ray.getDirection().x;
    Dy = ray.getDirection().y;
    Dz = ray.getDirection().z;
