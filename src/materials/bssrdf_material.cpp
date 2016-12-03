@@ -42,7 +42,6 @@ Color BssrdfMaterial::calculateColor(const Intersection& hit, const Scene& scene
     double fresnelOut = _Fresnel(std::abs(glm::dot(cameraDirOut, normalOut)));
     //std::cout << "Fo = " << _Fresnel(cosOut) << std::endl;
 
-
     Color Sd{0.0};
     auto samples = _samplePoints(hit, scene);
     for (const auto& sample : samples)
@@ -54,21 +53,20 @@ Color BssrdfMaterial::calculateColor(const Intersection& hit, const Scene& scene
 
         // Fresnel to the surface (from light)
         auto normalIn = hit.getObject()->getNormal(sample);
-        auto selectedLight = scene.getLights()[_prng() % scene.getLights().size()].get();
-        //Ray shadowRay(sample, selectedLight->getPosition() - sample);
-        //auto shadowHit = scene.castRay(shadowRay, [&hit](auto h)
-        //            {
-        //                return hit.getObject() != h.getObject() || h.getDistance() > 0.01;
-        //            });
-        //if (shadowHit && glm::length2(shadowHit.getPosition() - sample) <= glm::length2(selectedLight->getPosition() - sample))
-        //    continue;
+        auto lights = scene.castShadowRays(sample, hit.getObject());
+        if (lights.empty())
+            continue;
 
-        auto lightDirIn = glm::normalize(selectedLight->getPosition() - sample);
-        double cosIn = std::abs(glm::dot(lightDirIn, normalIn));
-        double fresnelIn = _Fresnel(cosIn);
-        //std::cout << "Fi = " << _Fresnel(glm::dot(lightDirIn, normalIn)) << std::endl;
+        Color acc{0.0};
+        for (const auto& light : lights)
+        {
+            auto lightDirIn = glm::normalize(light->getPosition() - sample);
+            double cosIn = std::abs(glm::dot(lightDirIn, normalIn));
+            double fresnelIn = _Fresnel(cosIn);
+            acc += 1.0 / M_PI * fresnelIn * Rd * fresnelOut * (light->getColor() * cosIn);
+        }
 
-        Sd += 1.0 / M_PI * fresnelIn * Rd * fresnelOut * (selectedLight->getColor() * cosIn);
+        Sd += acc / static_cast<double>(lights.size());
     }
 
     Sd /= samples.size();
@@ -87,7 +85,7 @@ std::vector<Vector> BssrdfMaterial::_samplePoints(const Intersection& hit, const
     //std::cout << "Its normal is " << normal.x << " " << normal.y << " " << normal.z << std::endl;
 
     // Middle point of normal distribution
-    auto middle = position + normal;
+    auto middle = position + 0.001 * normal;
 
     // Find orthonormal basis based on normal vector
     auto right = glm::normalize(glm::cross(Vector{0.0, 1.0, 0.0}, normal));
@@ -99,10 +97,10 @@ std::vector<Vector> BssrdfMaterial::_samplePoints(const Intersection& hit, const
     //    << up.x << ";" << up.y << ";" << up.z << " "
     //    << normal.x << ";" << normal.y << ";" << normal.z << std::endl;
 
-    double Rmax = 0.1;
+    double Rmax = 0.01;
     double Rmax2 = Rmax * Rmax;
 
-    for (std::uint32_t i = 0; i < 20; ++i)
+    for (std::uint32_t i = 0; i < 25; ++i)
     {
         // Just generate random number uniformly and calculate radius and angle
         double eps = static_cast<double>(_prng() % 1000) / 1000.0;
@@ -124,8 +122,9 @@ std::vector<Vector> BssrdfMaterial::_samplePoints(const Intersection& hit, const
         //std::cout << "Probe ray origin has position " << origin.x << " " << origin.y << " " << origin.z << std::endl;
 
         // Cast probe ray down to the object in opposite direction of normal
-        Ray ray(origin, -normal);
-        auto hit = scene.castRay(ray, [object](auto hit) { return hit.getObject() == object; });
+        //Ray ray(origin, -normal);
+        Ray ray(origin, object->getPosition() - origin);
+        auto hit = object->intersects(ray);
         if (hit)
         {
             auto samplePos = hit.getPosition();
@@ -165,16 +164,12 @@ Color BssrdfMaterial::_Rd(double distance2) const
 
 double BssrdfMaterial::_Fresnel(double angle) const
 {
-    double etai = 1.0;
-    double sint = (etai / _eta) * sqrt(std::max(0.0, 1.0 - angle * angle));
-    if (sint >= 1.0)
-    {
-        return 0.0;
-    }
-    double cost = sqrt(std::max(0.0, 1.0 - sint * sint));
-    double cosi = std::abs(angle);
+    // Fresnel - Shlick's approximation
+    double R0 = (1.0 - _eta) / (1.0 + _eta);
+    R0 *= R0;
 
-    float rParl = ((_eta * cosi) - (etai * cost)) / ((_eta * cosi) + (etai * cost));
-    float rPerp = ((etai * cosi) - (_eta * cost)) / ((etai * cosi) + (_eta * cost));
-    return 1.0 - (rParl * rParl + rPerp * rPerp) / 2.0f;
+    double cos5 = std::cos(angle);
+    cos5 = cos5 * cos5 * cos5 * cos5 * cos5;
+
+    return (R0 + (1.0 - R0) * (1.0 - cos5));
 }
