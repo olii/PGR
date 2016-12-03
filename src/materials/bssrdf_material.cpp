@@ -168,8 +168,8 @@ double BssrdfMaterial::_Fresnel(double angle) const
     double R0 = (1.0 - _eta) / (1.0 + _eta);
     R0 *= R0;
 
-    double cos5 = std::cos(angle);
+    double cos5 = (1.0 - std::cos(angle));
     cos5 = cos5 * cos5 * cos5 * cos5 * cos5;
 
-    return (R0 + (1.0 - R0) * (1.0 - cos5));
+    return (R0 + (1.0 - R0) * cos5);
 }
