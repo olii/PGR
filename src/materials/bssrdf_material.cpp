@@ -36,15 +36,12 @@ const Color& BssrdfMaterial::getScatterCoeff() const
 
 Color BssrdfMaterial::calculateColor(const Intersection& hit, const Scene& scene, const std::vector<const Light*>& visibleLights) const
 {
-    if (visibleLights.empty())
-        return {};
-
     std::mt19937 prng(std::chrono::system_clock::now().time_since_epoch().count());
 
     // Fresnel out of surface (to camera)
     auto normalOut = hit.getObject()->getNormal(hit.getPosition());
     auto cameraDirOut = glm::normalize(scene.getCamera().getPosition() - hit.getPosition());
-    double fresnelOut = _Fresnel(glm::dot(cameraDirOut, normalOut));
+    double fresnelOut = _Fresnel(std::abs(glm::dot(cameraDirOut, normalOut)));
     //std::cout << "Fo = " << _Fresnel(cosOut) << std::endl;
 
     Color Sd{0.0};
@@ -58,9 +55,17 @@ Color BssrdfMaterial::calculateColor(const Intersection& hit, const Scene& scene
 
         // Fresnel to the surface (from light)
         auto normalIn = hit.getObject()->getNormal(sample);
-        auto selectedLight = visibleLights[prng() % visibleLights.size()];
+        auto selectedLight = scene.getLights()[prng() % scene.getLights().size()].get();
+        //Ray shadowRay(sample, selectedLight->getPosition() - sample);
+        //auto shadowHit = scene.castRay(shadowRay, [&hit](auto h)
+        //            {
+        //                return hit.getObject() != h.getObject() || h.getDistance() > 0.01;
+        //            });
+        //if (shadowHit && glm::length2(shadowHit.getPosition() - sample) <= glm::length2(selectedLight->getPosition() - sample))
+        //    continue;
+
         auto lightDirIn = glm::normalize(selectedLight->getPosition() - sample);
-        double cosIn = glm::dot(lightDirIn, normalIn);
+        double cosIn = std::abs(glm::dot(lightDirIn, normalIn));
         double fresnelIn = _Fresnel(cosIn);
         //std::cout << "Fi = " << _Fresnel(glm::dot(lightDirIn, normalIn)) << std::endl;
 
@@ -96,7 +101,7 @@ std::vector<Vector> BssrdfMaterial::_samplePoints(const Intersection& hit, const
     //    << up.x << ";" << up.y << ";" << up.z << " "
     //    << normal.x << ";" << normal.y << ";" << normal.z << std::endl;
 
-    double Rmax = 0.3;
+    double Rmax = 0.1;
     double Rmax2 = Rmax * Rmax;
 
     for (std::uint32_t i = 0; i < 20; ++i)
