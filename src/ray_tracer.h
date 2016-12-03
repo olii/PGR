@@ -15,9 +15,6 @@ class RayTracer
 {
 public:
     void raytrace(const Scene& scene) const;
-
-private:
-    std::vector<const Light*> _castShadowRays(const Intersection& hitPoint, const Scene& scene) const;
 };
 
 #endif

@@ -28,6 +28,7 @@ public:
 
     Intersection castRay(const Ray& ray) const;
     Intersection castRay(const Ray& ray, const std::function<bool(const Intersection&)>& pred) const;
+    std::vector<const Light*> castShadowRays(const Vector& position, const Shape* object) const;
 
     Camera& getCamera();
     const Camera& getCamera() const;
