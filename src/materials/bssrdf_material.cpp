@@ -90,7 +90,8 @@ std::vector<Vector> BssrdfMaterial::_samplePoints(const Intersection& hit, const
 
     // Find orthonormal basis based on normal vector
     auto right = glm::normalize(glm::cross(Vector{0.0, 1.0, 0.0}, normal));
-    if (glm::dot(normal, Vector{0.0, 1.0, 0.0}) == 1.0)
+    auto angle = std::abs(glm::dot(normal, Vector{0.0, 1.0, 0.0}));
+    if (std::abs(angle - 1.0) < 1e-6)
         right = Vector{1.0, 0.0, 0.0};
     auto up = glm::normalize(glm::cross(normal, right));
 

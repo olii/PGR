@@ -91,6 +91,8 @@ Vector Cube::getNormal(const Vector& position) const
 
     if (d0x < tresh)   // left
         return {-s, 0, 0};
+    else if (d0y < tresh)   // bottom
+        return {0, -s, 0};
     else if (d0z < tresh)   // front
         return {0, 0, -s};
     else if (d1x < tresh)   // right
@@ -99,8 +101,6 @@ Vector Cube::getNormal(const Vector& position) const
         return {0, 0, s};
     else if (d1y < tresh)   // top
         return {0, s, 0};
-    else if (d0y < tresh)   // bottom
-        return {0, -s, 0};
 
     return {};
 }
