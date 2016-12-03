@@ -2,6 +2,7 @@
 #define BSSRDF_MATERIALS_BSSRDF_MATERIAL_H
 
 #include "material.h"
+#include <random>
 
 class BssrdfMaterial : public Material
 {
@@ -32,6 +33,8 @@ private:
     double _boundary;
     Color _positiveDipoleDistance;
     Color _negativeDipoleDistance;
+
+    mutable std::mt19937 _prng;
 };
 
 #endif

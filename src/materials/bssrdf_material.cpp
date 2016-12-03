@@ -1,5 +1,4 @@
 #include <chrono>
-#include <random>
 #include <iostream>
 
 #include <glm/gtx/norm.hpp>
@@ -11,17 +10,18 @@
 #include "shape.h"
 
 BssrdfMaterial::BssrdfMaterial(const Color& color, const Color& absorbCoeff, const Color& scatterCoeff, double phase, double eta)
-    : Material(color), _absorbCoeff(absorbCoeff), _scatterCoeff(scatterCoeff), _phase(phase), _eta(eta)
+  : Material(color), _absorbCoeff(absorbCoeff), _scatterCoeff(scatterCoeff), _phase(phase), _eta(eta),
+    _prng(std::chrono::system_clock::now().time_since_epoch().count())
 {
-    _reducedScatteringCoeff = _scatterCoeff * (1.0 - _phase); // sigma_a
-    _reducedExtinctionCoeff = _reducedScatteringCoeff + _absorbCoeff; // sigma_t'
-    _reducedAlbedo = _reducedScatteringCoeff / _reducedExtinctionCoeff; // alpha'
-    _effectiveTransportCoeff = sqrt(3.0 * _absorbCoeff * _reducedExtinctionCoeff); // sigma_tr
-    _fresnelDiffuseReflectance = _FdrIntegralApprox(_eta); // F_dr
-    _boundary = (1.0 + _fresnelDiffuseReflectance) / (1.0 - _fresnelDiffuseReflectance); // A
-    _positiveDipoleDistance = Color{1.0f, 1.0f, 1.0f} / _reducedExtinctionCoeff; // z_r
+    _reducedScatteringCoeff = _scatterCoeff * (1.0 - _phase);                              // sigma_a
+    _reducedExtinctionCoeff = _reducedScatteringCoeff + _absorbCoeff;                      // sigma_t'
+    _reducedAlbedo = _reducedScatteringCoeff / _reducedExtinctionCoeff;                    // alpha'
+    _effectiveTransportCoeff = sqrt(3.0 * _absorbCoeff * _reducedExtinctionCoeff);         // sigma_tr
+    _fresnelDiffuseReflectance = _FdrIntegralApprox(_eta);                                 // F_dr
+    _boundary = (1.0 + _fresnelDiffuseReflectance) / (1.0 - _fresnelDiffuseReflectance);   // A
+    _positiveDipoleDistance = Color{1.0f, 1.0f, 1.0f} / _reducedExtinctionCoeff;           // z_r
     //_negativeDipoleDistance = _positiveDipoleDistance + 4.0 * _boundary * (1.0 / (3.0 * _reducedExtinctionCoeff)); // z_v
-    _negativeDipoleDistance = _positiveDipoleDistance * (1.0 + 4.0 / 3.0 * _boundary); // z_v
+    _negativeDipoleDistance = _positiveDipoleDistance * (1.0 + 4.0 / 3.0 * _boundary);   // z_v
 }
 
 const Color& BssrdfMaterial::getAbsorbCoeff() const
@@ -36,8 +36,6 @@ const Color& BssrdfMaterial::getScatterCoeff() const
 
 Color BssrdfMaterial::calculateColor(const Intersection& hit, const Scene& scene, const std::vector<const Light*>& visibleLights) const
 {
-    std::mt19937 prng(std::chrono::system_clock::now().time_since_epoch().count());
-
     // Fresnel out of surface (to camera)
     auto normalOut = hit.getObject()->getNormal(hit.getPosition());
     auto cameraDirOut = glm::normalize(scene.getCamera().getPosition() - hit.getPosition());
@@ -55,7 +53,7 @@ Color BssrdfMaterial::calculateColor(const Intersection& hit, const Scene& scene
 
         // Fresnel to the surface (from light)
         auto normalIn = hit.getObject()->getNormal(sample);
-        auto selectedLight = scene.getLights()[prng() % scene.getLights().size()].get();
+        auto selectedLight = scene.getLights()[_prng() % scene.getLights().size()].get();
         //Ray shadowRay(sample, selectedLight->getPosition() - sample);
         //auto shadowHit = scene.castRay(shadowRay, [&hit](auto h)
         //            {
@@ -79,7 +77,6 @@ Color BssrdfMaterial::calculateColor(const Intersection& hit, const Scene& scene
 std::vector<Vector> BssrdfMaterial::_samplePoints(const Intersection& hit, const Scene& scene) const
 {
     std::vector<Vector> result;
-    std::mt19937 prng(std::chrono::system_clock::now().time_since_epoch().count());
 
     auto object = hit.getObject();
     auto position = hit.getPosition();
@@ -107,8 +104,9 @@ std::vector<Vector> BssrdfMaterial::_samplePoints(const Intersection& hit, const
     for (std::uint32_t i = 0; i < 20; ++i)
     {
         // Just generate random number uniformly and calculate radius and angle
-        double eps = static_cast<double>(prng() % 1000) / 1000.0;
-        double r = std::sqrt(std::log(1.0 - eps * (1.0 - std::exp(-_effectiveTransportCoeff.r * Rmax2))) / -_effectiveTransportCoeff.r);
+        double eps = static_cast<double>(_prng() % 1000) / 1000.0;
+        double r =
+            std::sqrt(std::log(1.0 - eps * (1.0 - std::exp(-_effectiveTransportCoeff.r * Rmax2))) / -_effectiveTransportCoeff.r);
         double theta = 2.0 * M_PI * eps;
         //std::cout << "---------------- SAMPLE " << i << std::endl;
 
@@ -157,14 +155,11 @@ Color BssrdfMaterial::_Rd(double distance2) const
     Color pdsd3 = pDipoleSampleDist * pDipoleSampleDist * pDipoleSampleDist;
     Color ndsd3 = nDipoleSampleDist * nDipoleSampleDist * nDipoleSampleDist;
 
-    return (_reducedAlbedo / (4.0 * M_PI)) * (
-            (_effectiveTransportCoeff * pDipoleSampleDist + 1.0) *
-                exp(-_effectiveTransportCoeff * pDipoleSampleDist) / (_reducedExtinctionCoeff * pdsd3)
-            +
-            _negativeDipoleDistance * (_effectiveTransportCoeff * nDipoleSampleDist + 1.0) *
-                exp(-_effectiveTransportCoeff * nDipoleSampleDist) / (_reducedExtinctionCoeff * ndsd3)
-        );
-
+    return (_reducedAlbedo / (4.0 * M_PI)) *
+        ((_effectiveTransportCoeff * pDipoleSampleDist + 1.0) * exp(-_effectiveTransportCoeff * pDipoleSampleDist) /
+                   (_reducedExtinctionCoeff * pdsd3) +
+               _negativeDipoleDistance * (_effectiveTransportCoeff * nDipoleSampleDist + 1.0) *
+                   exp(-_effectiveTransportCoeff * nDipoleSampleDist) / (_reducedExtinctionCoeff * ndsd3));
 }
 
 double BssrdfMaterial::_Fresnel(double angle) const
@@ -176,5 +171,5 @@ double BssrdfMaterial::_Fresnel(double angle) const
     double cos5 = std::cos(angle);
     cos5 = cos5 * cos5 * cos5 * cos5 * cos5;
 
-    return R0 + (1.0 - R0) * (1.0 - cos5);
+    return (R0 + (1.0 - R0) * (1.0 - cos5));
 }
