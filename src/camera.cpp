@@ -32,6 +32,11 @@ Screen& Camera::getScreen() const
     return _screen;
 }
 
+const Vector& Camera::getPosition() const
+{
+    return _position;
+}
+
 Ray Camera::getRay(double x, double y) const
 {
     auto xNdc = (x * _multiplierA) + _multiplierC;

@@ -6,6 +6,7 @@
 
 #include "camera.h"
 #include "materials/brdf_material.h"
+#include "materials/bssrdf_material.h"
 #include "ray.h"
 #include "ray_tracer.h"
 #include "scene.h"
@@ -36,16 +37,18 @@ int main(int, char* [])
     auto redMaterial = std::make_shared<BrdfMaterial>("red"_rgb, 1.0, 1.0);
     auto greenMaterial = std::make_shared<BrdfMaterial>("green"_rgb, 1.0, 1.0);
     auto blueMaterial = std::make_shared<BrdfMaterial>("blue"_rgb, 1.0, 1.0);
+    auto redBssrdfMaterial = std::make_shared<BssrdfMaterial>("red"_rgb, Color{0.003, 0.1, 0.05}, Color{10.2, 5.5, 3.2}, 0.3, 1.5);
 
     Screen screen(surface, "purple"_rgb);
     Scene scene({screen, {0.0, 2.0, 2.0}, {0.0, 0.0, 0.0}});
     scene.addLight(std::make_unique<Light>(Vector{0.0, 2.0, 2.0}, "white"_rgb));
-    scene.addLight(std::make_unique<Light>(Vector{0.0, 1.0, -3.5}, "white"_rgb));
+    //scene.addLight(std::make_unique<Light>(Vector{0.0, 1.0, -3.5}, "white"_rgb));
     scene.addObject(std::make_unique<Sphere>(Vector{0.0, 0.0, 0.0}, 1.0, redMaterial));
     scene.addObject(std::make_unique<Sphere>(Vector{0.0, -0.25, -2.0}, 1.0, greenMaterial));
     scene.addObject(std::make_unique<Sphere>(Vector{0.0, 0.0, -5.0}, 1.0, blueMaterial));
 //    scene.addObject(std::make_unique<Plane>(Vector{0.0, -15.0, 0.0}, Vector{0.0, 1.0, 0.0} , greenMaterial)); 
-    scene.addObject(std::make_unique<Cube>(Vector{-3.0, 0.0, -1.0}, 2.0, blueMaterial));
+    //scene.addObject(std::make_unique<Cube>(Vector{-3.0, 0.0, -1.0}, 2.0, redBssrdfMaterial));
+    scene.addObject(std::make_unique<Sphere>(Vector{3.0, 0.0, 0.0}, 1.0, redBssrdfMaterial));
 
     RayTracer raytracer;
 

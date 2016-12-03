@@ -5,11 +5,11 @@
 
 #include <cstdint>
 
-using Color = glm::vec3;
+using Color = glm::dvec3;
 
 Color operator"" _rgb(const char* str, std::size_t);
-Color operator*(const Color& color, double d);
-Color operator*(double d, const Color& color);
-Color& operator*=(Color& color, double d);
+
+Color sqrt(const Color& color);
+Color exp(const Color& color);
 
 #endif

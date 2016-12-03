@@ -35,3 +35,13 @@ Color& operator*=(Color& color, double d)
     color.b *= d;
     return color;
 }
+
+Color sqrt(const Color& color)
+{
+    return { std::sqrt(color.r), std::sqrt(color.g), std::sqrt(color.b) };
+}
+
+Color exp(const Color& color)
+{
+    return { std::exp(color.r), std::exp(color.g), std::exp(color.b) };
+}

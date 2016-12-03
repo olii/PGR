@@ -6,16 +6,32 @@
 class BssrdfMaterial : public Material
 {
 public:
-    BssrdfMaterial(const Color& color, double absorbCoeff, double scatterCoeff);
+    BssrdfMaterial(const Color& color, const Color& absorbCoeff, const Color& scatterCoeff, double phase, double eta);
 
-    double getAbsorbCoeff() const;
-    double getScatterCoeff() const;
+    const Color& getAbsorbCoeff() const;
+    const Color& getScatterCoeff() const;
 
     virtual Color calculateColor(const Intersection& hit, const Scene& scene, const std::vector<const Light*>& visibleLights) const override;
 
 private:
-    double _absorbCoeff;
-    double _scatterCoeff;
+    std::vector<Vector> _samplePoints(const Intersection& hit, const Scene& scene) const;
+    double _FdrIntegralApprox(double eta);
+    Color _Rd(double distance) const;
+    double _Fresnel(double angle) const;
+
+    Color _absorbCoeff;
+    Color _scatterCoeff;
+    double _phase;
+    double _eta;
+
+    Color _reducedScatteringCoeff;
+    Color _reducedExtinctionCoeff;
+    Color _reducedAlbedo;
+    Color _effectiveTransportCoeff;
+    double _fresnelDiffuseReflectance;
+    double _boundary;
+    Color _positiveDipoleDistance;
+    Color _negativeDipoleDistance;
 };
 
 #endif
