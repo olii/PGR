@@ -40,6 +40,7 @@ Color BssrdfMaterial::calculateColor(const Intersection& hit, const Scene& scene
     auto normalOut = hit.getObject()->getNormal(hit.getPosition());
     auto cameraDirOut = glm::normalize(scene.getCamera().getPosition() - hit.getPosition());
     double fresnelOut = _Fresnel(std::abs(glm::dot(cameraDirOut, normalOut)));
+
     //std::cout << "Fo = " << _Fresnel(cosOut) << std::endl;
 
     Color Sd{0.0};
@@ -164,12 +165,16 @@ Color BssrdfMaterial::_Rd(double distance2) const
 
 double BssrdfMaterial::_Fresnel(double angle) const
 {
-    // Fresnel - Shlick's approximation
-    double R0 = (1.0 - _eta) / (1.0 + _eta);
-    R0 *= R0;
+    double etai = 1.0;
+    double sint = (etai / _eta) * sqrt(std::max(0.0, 1.0 - angle * angle));
+    if (sint >= 1.0)
+    {
+        return 0.0;
+    }
+    double cost = sqrt(std::max(0.0, 1.0 - sint * sint));
+    double cosi = std::abs(angle);
 
-    double cos5 = (1.0 - std::cos(angle));
-    cos5 = cos5 * cos5 * cos5 * cos5 * cos5;
-
-    return (R0 + (1.0 - R0) * cos5);
+    float rParl = ((_eta * cosi) - (etai * cost)) / ((_eta * cosi) + (etai * cost));
+    float rPerp = ((etai * cosi) - (_eta * cost)) / ((etai * cosi) + (_eta * cost));
+    return 1.0 - (rParl * rParl + rPerp * rPerp) / 2.0f;
 }
