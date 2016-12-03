@@ -50,12 +50,13 @@ std::vector<const Light*> RayTracer::_castShadowRays(const Intersection& hitPoin
     for (const auto& light : scene.getLights())
     {
         auto lightDir = light->getPosition() - hitPoint.getPosition();
-        Ray shadowRay(hitPoint.getPosition(), lightDir);
+        auto point = hitPoint.getPosition() + 0.01 * hitPoint.getObject()->getNormal(hitPoint.getPosition());
+        Ray shadowRay(point, lightDir);
 
         // Shadow rays may cause "shadow acne" because these rays will start hitting the object itself in almost zero distance
         // Let's just check whether the hit object is the same as our source object and check the distance against threshold
         auto hit = scene.castRay(shadowRay, [&hitPoint](auto hit) {
-            return hit.getObject() != hitPoint.getObject() || hit.getDistance() > 0.01;
+            return true;
         });
 
         // We did not hit any object or we hit object farther away than light
