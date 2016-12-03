@@ -55,9 +55,7 @@ std::vector<const Light*> RayTracer::_castShadowRays(const Intersection& hitPoin
 
         // Shadow rays may cause "shadow acne" because these rays will start hitting the object itself in almost zero distance
         // Let's just check whether the hit object is the same as our source object and check the distance against threshold
-        auto hit = scene.castRay(shadowRay, [&hitPoint](auto hit) {
-            return true;
-        });
+        auto hit = scene.castRay(shadowRay);
 
         // We did not hit any object or we hit object farther away than light
         if (!hit || glm::length2(hit.getPosition() - hitPoint.getPosition()) > glm::length2(lightDir))
