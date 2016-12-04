@@ -48,17 +48,16 @@ Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
     auto rayOut = -hit.getRayDirection();
     auto normalOut = object->getNormal(hit.getPosition());
     auto refractOut = _refract(rayOut, normalOut);
-    double cosOut = std::abs(glm::dot(normalOut, rayOut));
+    double cosOut = std::max(0.0, std::abs(glm::dot(normalOut, rayOut)));
 
     double fresnelOut = _Fresnel(cosOut);
     double falloff = colorLuminance(_reducedExtinctionCoeff);
 
     Color S1{0.0};
-    auto samples = _samplePoints(hit, scene);
-    for (const auto& samplePair : samples)
-    {
-        const auto& sample = samplePair.first;
 
+    std::size_t numSamples = 20;
+    for (std::size_t i = 0; i < numSamples; ++i)
+    {
         double eps = static_cast<double>(genRandom() % 1000) / 1000.0;
         double distance = _exponentialDistribution(eps, falloff);
         auto volumePosition = hit.getPosition() + distance * refractOut;
@@ -66,18 +65,18 @@ Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
         //double samplePdf = _exponentialPdf(distance, falloff);
         const Light* light = scene.getLights()[genRandom() % scene.getLights().size()].get();
 
-        Ray ray(volumePosition, sample - volumePosition);
+        Ray ray(volumePosition, light->getPosition() - volumePosition);
         auto selfHit = object->intersects(ray);
         if (!selfHit || selfHit.getObject() != object)
             continue;
 
-        auto positionIn = sample;
+        auto positionIn = selfHit.getPosition();
         auto normalIn = object->getNormal(positionIn);
         if (!scene.castShadowRay(positionIn, object, light))
             continue;
 
         auto rayIn = glm::normalize(light->getPosition() - positionIn);
-        double cosIn = glm::dot(normalIn, rayIn);
+        double cosIn = std::max(0.0, std::abs(glm::dot(normalIn, rayIn)));
         double fresnelIn = _Fresnel(cosIn);
         double geometryFactor = glm::dot(normalIn, refractOut) / cosIn;
         Color combinedExtinctionCoeff = _reducedExtinctionCoeff + geometryFactor * _reducedExtinctionCoeff;
@@ -93,7 +92,7 @@ Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
             * light->getColor();
     }
 
-    S1 /= samples.size();
+    S1 /= numSamples;
     return S1;
 }
 
@@ -274,11 +273,11 @@ double BssrdfMaterial::_Fresnel(double angle) const
 
 Vector BssrdfMaterial::_refract(const Vector& vec, const Vector& normal) const
 {
-    double cosine = glm::dot(vec, normal);
+    double cosine = std::max(0.0, std::abs(glm::dot(vec, normal)));
     double eta = 1.0 / _eta;
     return glm::normalize(normal
             * (eta * cosine - std::sqrt(1.0 - eta * eta * (1.0 - cosine * cosine)))
-            * eta * vec);
+            - eta * vec);
 }
 
 double BssrdfMaterial::_exponentialDistribution(double x, double lambda) const
