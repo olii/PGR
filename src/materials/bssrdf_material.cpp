@@ -34,7 +34,17 @@ const Color& BssrdfMaterial::getScatterCoeff() const
     return _scatterCoeff;
 }
 
-Color BssrdfMaterial::calculateColor(const Intersection& hit, const Scene& scene, const std::vector<const Light*>& visibleLights) const
+Color BssrdfMaterial::calculateColor(const Intersection& hit, const Scene& scene, const std::vector<const Light*>&) const
+{
+    return _single(hit, scene) + _diffuse(hit, scene);
+}
+
+Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
+{
+    return {};
+}
+
+Color BssrdfMaterial::_diffuse(const Intersection& hit, const Scene& scene) const
 {
     // Fresnel out of surface (to camera)
     auto normalOut = hit.getObject()->getNormal(hit.getPosition());

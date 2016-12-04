@@ -15,6 +15,9 @@ public:
     virtual Color calculateColor(const Intersection& hit, const Scene& scene, const std::vector<const Light*>& visibleLights) const override;
 
 private:
+    Color _single(const Intersection& hit, const Scene& scene) const;
+    Color _diffuse(const Intersection& hit, const Scene& scene) const;
+
     std::vector<Vector> _samplePoints(const Intersection& hit, const Scene& scene) const;
     double _FdrIntegralApprox(double eta);
     Color _Rd(double distance) const;
