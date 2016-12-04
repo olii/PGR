@@ -77,7 +77,7 @@ Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
         auto rayIn = glm::normalize(light->getPosition() - positionIn);
         double cosIn = std::max(0.0, glm::dot(normalIn, rayIn));
         double fresnelIn = _Fresnel(cosIn);
-        double geometryFactor = glm::dot(normalIn, refractOut) / cosIn;
+        double geometryFactor = std::max(0.0, glm::dot(normalIn, refractOut)) / cosIn;
         Color combinedExtinctionCoeff = _reducedExtinctionCoeff + geometryFactor * _reducedExtinctionCoeff;
         double invEta2 = 1.0 / _eta;
         invEta2 *= invEta2;
@@ -86,7 +86,7 @@ Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
         double p = _phaseFunction(rayIn, refractOut);
 
         S1 += ((_scatterCoeff * fresnelIn * fresnelOut * p) / combinedExtinctionCoeff) *
-            glm::exp(-photonTravelDistance * combinedExtinctionCoeff) * glm::exp(-distance * _reducedExtinctionCoeff) *
+            glm::exp(-photonTravelDistance * _reducedExtinctionCoeff) * glm::exp(-distance * _reducedExtinctionCoeff) *
             light->getColor();
     }
 
@@ -271,7 +271,7 @@ double BssrdfMaterial::_Fresnel(double angle) const
 
 Vector BssrdfMaterial::_refract(const Vector& vec, const Vector& normal) const
 {
-    double cosine = std::max(0.0, std::abs(glm::dot(vec, normal)));
+    double cosine = std::max(0.0, glm::dot(vec, normal));
     double eta = 1.0 / _eta;
     return glm::normalize(normal * (eta * cosine - std::sqrt(1.0 - eta * eta * (1.0 - cosine * cosine))) - eta * vec);
 }
@@ -288,7 +288,7 @@ double BssrdfMaterial::_exponentialPdf(double x, double lambda) const
 
 double BssrdfMaterial::_phaseFunction(const Vector& v1, const Vector& v2) const
 {
-    double cosine = glm::dot(v1, v2);
+    double cosine = std::max(0.0, glm::dot(v1, v2));
     double phase2 = _phase * _phase;
     double denom = 1.0 + phase2 - 2.0 * _phase * cosine;
     double denom3 = denom * denom * denom;
