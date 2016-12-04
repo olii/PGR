@@ -11,8 +11,8 @@
 #include "scene.h"
 #include "shape.h"
 
-BssrdfMaterial::BssrdfMaterial(const Color& color, const Color& absorbCoeff, const Color& scatterCoeff, double phase, double eta)
-  : Material(color), _absorbCoeff(absorbCoeff), _scatterCoeff(scatterCoeff), _phase(phase), _eta(eta)
+BssrdfMaterial::BssrdfMaterial(const Color& absorbCoeff, const Color& scatterCoeff, double phase, double eta)
+  : Material(Color{}), _absorbCoeff(absorbCoeff), _scatterCoeff(scatterCoeff), _phase(phase), _eta(eta)
 {
     _reducedScatteringCoeff = _scatterCoeff * (1.0 - _phase);                                             // sigma_a
     _reducedExtinctionCoeff = _reducedScatteringCoeff + _absorbCoeff;                                     // sigma_t'

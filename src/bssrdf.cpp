@@ -48,7 +48,7 @@ int main(int, char* [])
     auto redMaterial = std::make_shared<BrdfMaterial>("red"_rgb, 1.0, 1.0);
     auto greenMaterial = std::make_shared<BrdfMaterial>("green"_rgb, 1.0, 1.0);
     auto blueMaterial = std::make_shared<BrdfMaterial>("blue"_rgb, 1.0, 1.0);
-    auto redBssrdfMaterial = std::make_shared<BssrdfMaterial>(Color{0.92,0.92,0.99}, Color{0.0021, 0.0041, 0.0071}, Color{2.19, 2.62, 3.00}, 0.0, 1.3);
+    auto redBssrdfMaterial = std::make_shared<BssrdfMaterial>(Color{0.0021, 0.0041, 0.0071}, Color{2.19, 2.62, 3.00}, 0.0, 1.3);
 
     Screen screen(surface, "purple"_rgb);
     Scene scene({screen, {1.5, 1.5, -1.5}, {3.0, 0.0, 0.0}});
