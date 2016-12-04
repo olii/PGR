@@ -241,9 +241,9 @@ double BssrdfMaterial::_Fresnel(double angle) const
     double cost = sqrt(std::max(0.0, 1.0 - sint * sint));
     double cosi = std::abs(angle);
 
-    float rParl = ((_eta * cosi) - (etai * cost)) / ((_eta * cosi) + (etai * cost));
-    float rPerp = ((etai * cosi) - (_eta * cost)) / ((etai * cosi) + (_eta * cost));
-    return 1.0 - (rParl * rParl + rPerp * rPerp) / 2.0f;
+    double sPolar = ((_eta * cosi) - (etai * cost)) / ((_eta * cosi) + (etai * cost));
+    double pPolar = ((etai * cosi) - (_eta * cost)) / ((etai * cosi) + (_eta * cost));
+    return 1.0 - (sPolar * sPolar + pPolar * pPolar) / 2.0;
 }
 
 Vector BssrdfMaterial::_refract(const Vector& vec, const Vector& normal) const
