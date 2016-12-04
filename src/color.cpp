@@ -18,30 +18,7 @@ Color operator"" _rgb(const char* str, std::size_t)
     return {0.0f, 0.0f, 0.0f};
 }
 
-Color operator*(const Color& color, double d)
+double colorLuminance(const Color& color)
 {
-    return { color.r * d, color.g * d, color.b * d };
-}
-
-Color operator*(double d, const Color& color)
-{
-    return color * d;
-}
-
-Color& operator*=(Color& color, double d)
-{
-    color.r *= d;
-    color.g *= d;
-    color.b *= d;
-    return color;
-}
-
-Color sqrt(const Color& color)
-{
-    return { std::sqrt(color.r), std::sqrt(color.g), std::sqrt(color.b) };
-}
-
-Color exp(const Color& color)
-{
-    return { std::exp(color.r), std::exp(color.g), std::exp(color.b) };
+    return 0.212671 * color.r + 0.715160 * color.g + 0.072169 * color.b;
 }

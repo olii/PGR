@@ -31,7 +31,7 @@ private:
     Color _reducedScatteringCoeff;
     Color _reducedExtinctionCoeff;
     Color _reducedAlbedo;
-    Color _effectiveTransportCoeff;
+    double _effectiveTransportCoeff;
     double _fresnelDiffuseReflectance;
     double _boundary;
     Color _positiveDipoleDistance;

@@ -13,13 +13,13 @@ BssrdfMaterial::BssrdfMaterial(const Color& color, const Color& absorbCoeff, con
   : Material(color), _absorbCoeff(absorbCoeff), _scatterCoeff(scatterCoeff), _phase(phase), _eta(eta),
     _prng(std::chrono::system_clock::now().time_since_epoch().count())
 {
-    _reducedScatteringCoeff = _scatterCoeff * (1.0 - _phase);                              // sigma_a
-    _reducedExtinctionCoeff = _reducedScatteringCoeff + _absorbCoeff;                      // sigma_t'
-    _reducedAlbedo = _reducedScatteringCoeff / _reducedExtinctionCoeff;                    // alpha'
-    _effectiveTransportCoeff = sqrt(3.0 * _absorbCoeff * _reducedExtinctionCoeff);         // sigma_tr
-    _fresnelDiffuseReflectance = _FdrIntegralApprox(_eta);                                 // F_dr
-    _boundary = (1.0 + _fresnelDiffuseReflectance) / (1.0 - _fresnelDiffuseReflectance);   // A
-    _positiveDipoleDistance = Color{1.0f, 1.0f, 1.0f} / _reducedExtinctionCoeff;           // z_r
+    _reducedScatteringCoeff = _scatterCoeff * (1.0 - _phase);                                           // sigma_a
+    _reducedExtinctionCoeff = _reducedScatteringCoeff + _absorbCoeff;                                   // sigma_t'
+    _reducedAlbedo = _reducedScatteringCoeff / _reducedExtinctionCoeff;                                 // alpha'
+    _effectiveTransportCoeff = colorLuminance(glm::sqrt(3.0 * _absorbCoeff * _reducedExtinctionCoeff)); // sigma_tr
+    _fresnelDiffuseReflectance = _FdrIntegralApprox(_eta);                                              // F_dr
+    _boundary = (1.0 + _fresnelDiffuseReflectance) / (1.0 - _fresnelDiffuseReflectance);                // A
+    _positiveDipoleDistance = Color{1.0f, 1.0f, 1.0f} / _reducedExtinctionCoeff;                        // z_r
     //_negativeDipoleDistance = _positiveDipoleDistance + 4.0 * _boundary * (1.0 / (3.0 * _reducedExtinctionCoeff)); // z_v
     _negativeDipoleDistance = _positiveDipoleDistance * (1.0 + 4.0 / 3.0 * _boundary);   // z_v
 }
@@ -109,16 +109,17 @@ std::vector<Vector> BssrdfMaterial::_samplePoints(const Intersection& hit, const
     //    << up.x << ";" << up.y << ";" << up.z << " "
     //    << normal.x << ";" << normal.y << ";" << normal.z << std::endl;
 
-    double Rmax = 0.01;
+    double Rmax = 0.1;
     double Rmax2 = Rmax * Rmax;
 
     for (std::uint32_t i = 0; i < 25; ++i)
     {
         // Just generate random number uniformly and calculate radius and angle
-        double eps = static_cast<double>(_prng() % 1000) / 1000.0;
+        double eps1 = static_cast<double>(_prng() % 1000) / 1000.0;
+        double eps2 = static_cast<double>(_prng() % 1000) / 1000.0;
         double r =
-            std::sqrt(std::log(1.0 - eps * (1.0 - std::exp(-_effectiveTransportCoeff.r * Rmax2))) / -_effectiveTransportCoeff.r);
-        double theta = 2.0 * M_PI * eps;
+            std::sqrt(std::log(1.0 - eps1 * (1.0 - std::exp(-_effectiveTransportCoeff * Rmax2))) / -_effectiveTransportCoeff);
+        double theta = 2.0 * M_PI * eps2;
         //std::cout << "---------------- SAMPLE " << i << std::endl;
 
         // Transform back to cartesian coordinates
@@ -161,23 +162,23 @@ double BssrdfMaterial::_FdrIntegralApprox(double eta)
 Color BssrdfMaterial::_Rd(double distance2) const
 {
     // Rd function from Jensen
-    Color pDipoleSampleDist = sqrt(_positiveDipoleDistance * _positiveDipoleDistance + Color{distance2});
-    Color nDipoleSampleDist = sqrt(_negativeDipoleDistance * _negativeDipoleDistance + Color{distance2});
+    Color pDipoleSampleDist = glm::sqrt(_positiveDipoleDistance * _positiveDipoleDistance + Color{distance2});
+    Color nDipoleSampleDist = glm::sqrt(_negativeDipoleDistance * _negativeDipoleDistance + Color{distance2});
 
     Color pdsd3 = pDipoleSampleDist * pDipoleSampleDist * pDipoleSampleDist;
     Color ndsd3 = nDipoleSampleDist * nDipoleSampleDist * nDipoleSampleDist;
 
     return (_reducedAlbedo / (4.0 * M_PI)) *
-        ((_effectiveTransportCoeff * pDipoleSampleDist + 1.0) * exp(-_effectiveTransportCoeff * pDipoleSampleDist) /
+        ((_effectiveTransportCoeff * pDipoleSampleDist + 1.0) * glm::exp(-_effectiveTransportCoeff * pDipoleSampleDist) /
                    (_reducedExtinctionCoeff * pdsd3) +
                _negativeDipoleDistance * (_effectiveTransportCoeff * nDipoleSampleDist + 1.0) *
-                   exp(-_effectiveTransportCoeff * nDipoleSampleDist) / (_reducedExtinctionCoeff * ndsd3));
+                   glm::exp(-_effectiveTransportCoeff * nDipoleSampleDist) / (_reducedExtinctionCoeff * ndsd3));
 }
 
 double BssrdfMaterial::_Fresnel(double angle) const
 {
     double etai = 1.0;
-    double sint = (etai / _eta) * sqrt(std::max(0.0, 1.0 - angle * angle));
+    double sint = (etai / _eta) * std::sqrt(std::max(0.0, 1.0 - angle * angle));
     if (sint >= 1.0)
     {
         return 0.0;

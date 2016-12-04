@@ -9,7 +9,6 @@ using Color = glm::dvec3;
 
 Color operator"" _rgb(const char* str, std::size_t);
 
-Color sqrt(const Color& color);
-Color exp(const Color& color);
+double colorLuminance(const Color& color);
 
 #endif
