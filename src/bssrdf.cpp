@@ -56,7 +56,7 @@ int main(int, char* [])
     //scene.addLight(std::make_unique<Light>(Vector{0.0, 1.0, -3.5}, "white"_rgb));
     scene.addObject(std::make_unique<Sphere>(Vector{0.0, 0.0, 0.0}, 1.0, redMaterial));
     scene.addObject(std::make_unique<Sphere>(Vector{0.0, -0.25, -2.0}, 1.0, greenMaterial));
-    scene.addObject(std::make_unique<Sphere>(Vector{0.0, 0.0, -5.0}, 1.0, redBssrdfMaterial));
+    scene.addObject(std::make_unique<Sphere>(Vector{0.0, 0.0, -5.0}, 5.0, redBssrdfMaterial));
     //    scene.addObject(std::make_unique<Plane>(Vector{0.0, -15.0, 0.0}, Vector{0.0, 1.0, 0.0} , greenMaterial));
     //scene.addObject(std::make_unique<Cube>(Vector{-3.0, 0.0, -1.0}, 2.0, redBssrdfMaterial));
     scene.addObject(std::make_unique<Cube>(Vector{3.0, 0.0, 0.0}, 1.0, redBssrdfMaterial));

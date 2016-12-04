@@ -5,4 +5,8 @@
 
 std::mt19937::result_type genRandom();
 
+double getRandomExponential(double falloff);
+double getRandomUniform();
+//double getRandomGaussian(double, double);
+
 #endif

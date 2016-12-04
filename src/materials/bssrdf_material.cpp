@@ -38,7 +38,7 @@ const Color& BssrdfMaterial::getScatterCoeff() const
 
 Color BssrdfMaterial::calculateColor(const Intersection& hit, const Scene& scene, const std::vector<const Light*>&) const
 {
-    return _single(hit, scene) + _diffuse(hit, scene);
+    return _single(hit, scene) /*+ _diffuse(hit, scene)*/;
 }
 
 Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
@@ -55,11 +55,11 @@ Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
 
     Color S1{0.0};
 
-    std::size_t numSamples = 20;
+    std::size_t numSamples = 1;
     for (std::size_t i = 0; i < numSamples; ++i)
     {
-        double eps = static_cast<double>(genRandom() % 1000) / 1000.0;
-        double distance = _exponentialDistribution(eps, falloff);
+
+        double distance = getRandomExponential(falloff);
         auto volumePosition = hit.getPosition() + distance * refractOut;
 
         //double samplePdf = _exponentialPdf(distance, falloff);
@@ -69,6 +69,9 @@ Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
         auto selfHit = object->intersects(ray);
         if (!selfHit || selfHit.getObject() != object)
             continue;
+
+        S1 += Color{0, 1, 0};
+        continue;
 
         auto positionIn = selfHit.getPosition();
         auto normalIn = object->getNormal(positionIn);
@@ -86,10 +89,9 @@ Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
         double photonTravelDistance = volumeSampleDistanceToIn * cosIn / (std::sqrt(1.0 - invEta2 * (1.0 - cosIn * cosIn)));
         double p = _phaseFunction(rayIn, refractOut);
 
-        S1 += ((_scatterCoeff * fresnelIn * fresnelOut * p) / combinedExtinctionCoeff)
-            * glm::exp(-photonTravelDistance * combinedExtinctionCoeff)
-            * glm::exp(-distance * _reducedExtinctionCoeff)
-            * light->getColor();
+        S1 += ((_scatterCoeff * fresnelIn * fresnelOut * p) / combinedExtinctionCoeff) *
+            glm::exp(-photonTravelDistance * combinedExtinctionCoeff) * glm::exp(-distance * _reducedExtinctionCoeff) *
+            light->getColor();
     }
 
     S1 /= numSamples;
@@ -192,8 +194,8 @@ std::vector<std::pair<Vector, double>> BssrdfMaterial::_samplePoints(const Inter
     for (std::uint32_t i = 0; i < 20; ++i)
     {
         // Just generate random number uniformly and calculate radius and angle
-        double eps1 = static_cast<double>(genRandom() % 1000) / 1000.0;
-        double eps2 = static_cast<double>(genRandom() % 1000) / 1000.0;
+        double eps1 = getRandomUniform();
+        double eps2 = getRandomUniform();
         double r =
             std::sqrt(std::log(1.0 - eps1 * (1.0 - std::exp(-_effectiveTransportCoeff * Rmax2))) / -_effectiveTransportCoeff);
         double theta = 2.0 * M_PI * eps2;
@@ -275,9 +277,7 @@ Vector BssrdfMaterial::_refract(const Vector& vec, const Vector& normal) const
 {
     double cosine = std::max(0.0, std::abs(glm::dot(vec, normal)));
     double eta = 1.0 / _eta;
-    return glm::normalize(normal
-            * (eta * cosine - std::sqrt(1.0 - eta * eta * (1.0 - cosine * cosine)))
-            - eta * vec);
+    return glm::normalize(normal * (eta * cosine - std::sqrt(1.0 - eta * eta * (1.0 - cosine * cosine))) - eta * vec);
 }
 
 double BssrdfMaterial::_exponentialDistribution(double x, double lambda) const
