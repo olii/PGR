@@ -50,7 +50,7 @@ int main(int, char* [])
     //scene.addObject(std::make_unique<Cube>(Vector{-3.0, 0.0, -1.0}, 2.0, redBssrdfMaterial));
     scene.addObject(std::make_unique<Cube>(Vector{3.0, 0.0, 0.0}, 1.0, redBssrdfMaterial));
 
-    RayTracer raytracer;
+    RayTracer raytracer(std::thread::hardware_concurrency());
 
     bool running = true;
     SDL_Event event;
@@ -116,5 +116,6 @@ int main(int, char* [])
         }
     }
 
+    raytracer.stop();
     return 0;
 }

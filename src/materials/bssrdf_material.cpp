@@ -1,5 +1,6 @@
 #include <chrono>
 #include <iostream>
+#include <thread>
 
 #include <glm/gtx/norm.hpp>
 
@@ -10,8 +11,7 @@
 #include "shape.h"
 
 BssrdfMaterial::BssrdfMaterial(const Color& color, const Color& absorbCoeff, const Color& scatterCoeff, double phase, double eta)
-  : Material(color), _absorbCoeff(absorbCoeff), _scatterCoeff(scatterCoeff), _phase(phase), _eta(eta),
-    _prng(std::chrono::system_clock::now().time_since_epoch().count())
+  : Material(color), _absorbCoeff(absorbCoeff), _scatterCoeff(scatterCoeff), _phase(phase), _eta(eta)
 {
     _reducedScatteringCoeff = _scatterCoeff * (1.0 - _phase);                                           // sigma_a
     _reducedExtinctionCoeff = _reducedScatteringCoeff + _absorbCoeff;                                   // sigma_t'
@@ -86,6 +86,9 @@ Color BssrdfMaterial::_diffuse(const Intersection& hit, const Scene& scene) cons
 
 std::vector<Vector> BssrdfMaterial::_samplePoints(const Intersection& hit, const Scene& scene) const
 {
+    static thread_local std::mt19937
+        prng(std::chrono::system_clock::now().time_since_epoch().count() ^ std::hash<std::thread::id>{}(std::this_thread::get_id()));
+
     std::vector<Vector> result;
 
     auto object = hit.getObject();
@@ -115,8 +118,8 @@ std::vector<Vector> BssrdfMaterial::_samplePoints(const Intersection& hit, const
     for (std::uint32_t i = 0; i < 25; ++i)
     {
         // Just generate random number uniformly and calculate radius and angle
-        double eps1 = static_cast<double>(_prng() % 1000) / 1000.0;
-        double eps2 = static_cast<double>(_prng() % 1000) / 1000.0;
+        double eps1 = static_cast<double>(prng() % 1000) / 1000.0;
+        double eps2 = static_cast<double>(prng() % 1000) / 1000.0;
         double r =
             std::sqrt(std::log(1.0 - eps1 * (1.0 - std::exp(-_effectiveTransportCoeff * Rmax2))) / -_effectiveTransportCoeff);
         double theta = 2.0 * M_PI * eps2;

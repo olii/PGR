@@ -36,8 +36,6 @@ private:
     double _boundary;
     Color _positiveDipoleDistance;
     Color _negativeDipoleDistance;
-
-    mutable std::mt19937 _prng;
 };
 
 #endif
