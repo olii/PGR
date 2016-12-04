@@ -49,7 +49,7 @@ Color BssrdfMaterial::_diffuse(const Intersection& hit, const Scene& scene) cons
     // Fresnel out of surface (to camera)
     auto normalOut = hit.getObject()->getNormal(hit.getPosition());
     auto cameraDirOut = glm::normalize(scene.getCamera().getPosition() - hit.getPosition());
-    double fresnelOut = _Fresnel(std::abs(glm::dot(cameraDirOut, normalOut)));
+    double fresnelOut = _Fresnel(std::max(0.0, glm::dot(cameraDirOut, normalOut)));
 
     //std::cout << "Fo = " << _Fresnel(cosOut) << std::endl;
 
