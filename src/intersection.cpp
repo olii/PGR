@@ -4,7 +4,8 @@ Intersection::Intersection() : _distance(std::numeric_limits<double>::max()), _p
 {
 }
 
-Intersection::Intersection(double distance, const Vector& position, const Shape* object) : _distance(distance), _position(position), _object(object)
+Intersection::Intersection(double distance, const Vector& position, const Vector& rayDirection, const Shape* object)
+    : _distance(distance), _position(position), _rayDirection(rayDirection), _object(object)
 {
 }
 
@@ -31,6 +32,11 @@ double Intersection::getDistance() const
 const Vector& Intersection::getPosition() const
 {
     return _position;
+}
+
+const Vector& Intersection::getRayDirection() const
+{
+    return _rayDirection;
 }
 
 const Shape* Intersection::getObject() const

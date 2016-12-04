@@ -20,7 +20,7 @@ Intersection Plane::intersects(const Ray& ray) const
         float t = glm::dot(_position - ray.getOrigin(), _normal) / denom;
         if (t > 0)
         {
-            return {t, ray.getPoint(t), this};
+            return {t, ray.getPoint(t), ray.getDirection(), this};
         }
     }
     return {};

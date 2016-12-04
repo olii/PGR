@@ -7,6 +7,7 @@
 
 #include "intersection.h"
 #include "materials/bssrdf_material.h"
+#include "multithreading/thread_safe_prng.h"
 #include "ray.h"
 #include "scene.h"
 #include "shape.h"
@@ -42,7 +43,58 @@ Color BssrdfMaterial::calculateColor(const Intersection& hit, const Scene& scene
 
 Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
 {
-    return {};
+    auto object = hit.getObject();
+
+    auto rayOut = -hit.getRayDirection();
+    auto normalOut = object->getNormal(hit.getPosition());
+    auto refractOut = _refract(rayOut, normalOut);
+    double cosOut = std::abs(glm::dot(normalOut, rayOut));
+
+    double fresnelOut = _Fresnel(cosOut);
+    double falloff = colorLuminance(_reducedExtinctionCoeff);
+
+    Color S1{0.0};
+    auto samples = _samplePoints(hit, scene);
+    for (const auto& samplePair : samples)
+    {
+        const auto& sample = samplePair.first;
+
+        double eps = static_cast<double>(genRandom() % 1000) / 1000.0;
+        double distance = _exponentialDistribution(eps, falloff);
+        auto volumePosition = hit.getPosition() + distance * refractOut;
+
+        //double samplePdf = _exponentialPdf(distance, falloff);
+        const Light* light = scene.getLights()[genRandom() % scene.getLights().size()].get();
+
+        Ray ray(volumePosition, sample - volumePosition);
+        auto selfHit = object->intersects(ray);
+        if (!selfHit || selfHit.getObject() != object)
+            continue;
+
+        auto positionIn = sample;
+        auto normalIn = object->getNormal(positionIn);
+        if (!scene.castShadowRay(positionIn, object, light))
+            continue;
+
+        auto rayIn = glm::normalize(light->getPosition() - positionIn);
+        double cosIn = glm::dot(normalIn, rayIn);
+        double fresnelIn = _Fresnel(cosIn);
+        double geometryFactor = glm::dot(normalIn, refractOut) / cosIn;
+        Color combinedExtinctionCoeff = _reducedExtinctionCoeff + geometryFactor * _reducedExtinctionCoeff;
+        double invEta2 = 1.0 / _eta;
+        invEta2 *= invEta2;
+        double volumeSampleDistanceToIn = glm::length(volumePosition - positionIn);
+        double photonTravelDistance = volumeSampleDistanceToIn * cosIn / (std::sqrt(1.0 - invEta2 * (1.0 - cosIn * cosIn)));
+        double p = _phaseFunction(rayIn, refractOut);
+
+        S1 += ((_scatterCoeff * fresnelIn * fresnelOut * p) / combinedExtinctionCoeff)
+            * glm::exp(-photonTravelDistance * combinedExtinctionCoeff)
+            * glm::exp(-distance * _reducedExtinctionCoeff)
+            * light->getColor();
+    }
+
+    S1 /= samples.size();
+    return S1;
 }
 
 Color BssrdfMaterial::_diffuse(const Intersection& hit, const Scene& scene) const
@@ -104,9 +156,6 @@ inline double gaussianSample2DPdf(double dist, double falloff, double Rmax2)
 
 std::vector<std::pair<Vector, double>> BssrdfMaterial::_samplePoints(const Intersection& hit, const Scene& scene) const
 {
-    static thread_local std::mt19937 prng(
-        std::chrono::system_clock::now().time_since_epoch().count() ^ std::hash<std::thread::id>{}(std::this_thread::get_id()));
-
     std::vector<std::pair<Vector, double>> result;
 
     auto object = hit.getObject();
@@ -141,11 +190,11 @@ std::vector<std::pair<Vector, double>> BssrdfMaterial::_samplePoints(const Inter
     /*     double Rmax = 1.5;
     double Rmax2 = Rmax * Rmax;*/
 
-    for (std::uint32_t i = 0; i < 25; ++i)
+    for (std::uint32_t i = 0; i < 20; ++i)
     {
         // Just generate random number uniformly and calculate radius and angle
-        double eps1 = static_cast<double>(prng() % 1000) / 1000.0;
-        double eps2 = static_cast<double>(prng() % 1000) / 1000.0;
+        double eps1 = static_cast<double>(genRandom() % 1000) / 1000.0;
+        double eps2 = static_cast<double>(genRandom() % 1000) / 1000.0;
         double r =
             std::sqrt(std::log(1.0 - eps1 * (1.0 - std::exp(-_effectiveTransportCoeff * Rmax2))) / -_effectiveTransportCoeff);
         double theta = 2.0 * M_PI * eps2;
@@ -221,4 +270,32 @@ double BssrdfMaterial::_Fresnel(double angle) const
     float rParl = ((_eta * cosi) - (etai * cost)) / ((_eta * cosi) + (etai * cost));
     float rPerp = ((etai * cosi) - (_eta * cost)) / ((etai * cosi) + (_eta * cost));
     return 1.0 - (rParl * rParl + rPerp * rPerp) / 2.0f;
+}
+
+Vector BssrdfMaterial::_refract(const Vector& vec, const Vector& normal) const
+{
+    double cosine = glm::dot(vec, normal);
+    double eta = 1.0 / _eta;
+    return glm::normalize(normal
+            * (eta * cosine - std::sqrt(1.0 - eta * eta * (1.0 - cosine * cosine)))
+            * eta * vec);
+}
+
+double BssrdfMaterial::_exponentialDistribution(double x, double lambda) const
+{
+    return -std::log(x) / lambda;
+}
+
+double BssrdfMaterial::_exponentialPdf(double x, double lambda) const
+{
+    return lambda * std::exp(-lambda * x);
+}
+
+double BssrdfMaterial::_phaseFunction(const Vector& v1, const Vector& v2) const
+{
+    double cosine = glm::dot(v1, v2);
+    double phase2 = _phase * _phase;
+    double denom = 1.0 + phase2 - 2.0 * _phase * cosine;
+    double denom3 = denom * denom * denom;
+    return (0.25 / M_PI) * ((1.0 - phase2) / std::sqrt(denom3));
 }

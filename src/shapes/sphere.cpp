@@ -35,11 +35,11 @@ Intersection Sphere::intersects(const Ray& ray) const
         auto sqrtD = std::sqrt(D);
         auto solution = (-b - sqrtD) / (2.0 * a);
         if (solution > 0.0)
-            return {solution, ray.getPoint(solution), this};
+            return {solution, ray.getPoint(solution), ray.getDirection(), this};
 
         solution = (-b + sqrtD) / (2.0 * a);
         if (solution > 0.0)
-            return {solution, ray.getPoint(solution), this};
+            return {solution, ray.getPoint(solution), ray.getDirection(), this};
     }
 
     return {};

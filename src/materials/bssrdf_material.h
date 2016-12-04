@@ -22,6 +22,10 @@ private:
     double _FdrIntegralApprox(double eta);
     Color _Rd(double distance) const;
     double _Fresnel(double angle) const;
+    Vector _refract(const Vector& v, const Vector& normal) const;
+    double _exponentialDistribution(double x, double lambda) const;
+    double _exponentialPdf(double x, double lambda) const;
+    double _phaseFunction(const Vector& v1, const Vector& v2) const;
 
     Color _absorbCoeff;
     Color _scatterCoeff;
