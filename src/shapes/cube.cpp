@@ -67,11 +67,10 @@ Intersection Cube::intersects(const Ray& ray) const
     if (tzmax < tmax)
         tmax = tzmax;
 
-    // return first hit (tmin)
-
-    if (tmin <= 0.0)
+    if (tmin <= 0.0 && tmax <= 0.0)
         return {};
 
+    // return first hit (tmin)
     return {tmin, ray.getPoint(tmin), ray.getDirection(), this};
 }
 
