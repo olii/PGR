@@ -1,5 +1,4 @@
 #include <chrono>
-#include <iostream>
 #include <thread>
 #include <sstream>
 
@@ -22,8 +21,7 @@ BssrdfMaterial::BssrdfMaterial(const Color& color, const Color& absorbCoeff, con
     _fresnelDiffuseReflectance = _FdrIntegralApprox(_eta);                                                // F_dr
     _boundary = (1.0 + _fresnelDiffuseReflectance) / (1.0 - _fresnelDiffuseReflectance);                  // A
     _positiveDipoleDistance = Color{1.0f, 1.0f, 1.0f} / _reducedExtinctionCoeff;                          // z_r
-    //_negativeDipoleDistance = _positiveDipoleDistance + 4.0 * _boundary * (1.0 / (3.0 * _reducedExtinctionCoeff)); // z_v
-    _negativeDipoleDistance = _positiveDipoleDistance * (1.0 + 4.0 / 3.0 * _boundary);   // z_v
+    _negativeDipoleDistance = _positiveDipoleDistance * (1.0 + 4.0 / 3.0 * _boundary);                    // z_v
 }
 
 const Color& BssrdfMaterial::getAbsorbCoeff() const
@@ -66,7 +64,6 @@ Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
         double distance = getRandomExponential(falloff);
         auto volumePosition = hit.getPosition() + distance * refractOut;
 
-        //double samplePdf = _exponentialPdf(distance, falloff);
         const Light* light = scene.getLights()[genRandom() % scene.getLights().size()].get();
 
         Ray ray(volumePosition, light->getPosition() - volumePosition);
@@ -94,7 +91,7 @@ Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
             glm::exp(-photonTravelDistance * _reducedExtinctionCoeff) * glm::exp(-distance * _reducedExtinctionCoeff) *
             light->getColor();
 
-        S1 += (acc/* /exponentialPdf(distance,falloff*/);
+        S1 += acc;
     }
 
     S1 /= numSamples;
@@ -108,8 +105,6 @@ Color BssrdfMaterial::_diffuse(const Intersection& hit, const Scene& scene) cons
     auto cameraDirOut = glm::normalize(scene.getCamera().getPosition() - hit.getPosition());
     double fresnelOut = _Fresnel(std::max(0.0, glm::dot(cameraDirOut, normalOut)));
 
-    //std::cout << "Fo = " << _Fresnel(cosOut) << std::endl;
-
     Color Sd{0.0};
     auto samples = _samplePoints(hit, scene);
     for (const auto& samplePair : samples)
@@ -119,7 +114,6 @@ Color BssrdfMaterial::_diffuse(const Intersection& hit, const Scene& scene) cons
         // Rd function
         auto distance2 = glm::length2(hit.getPosition() - sample);
         Color Rd = _Rd(distance2);
-        //std::cout << "RD = " << _Rd(distance2) << std::endl;
 
         // Fresnel to the surface (from light)
         auto normalIn = hit.getObject()->getNormal(sample);
@@ -166,9 +160,6 @@ std::vector<std::pair<Vector, double>> BssrdfMaterial::_samplePoints(const Inter
     auto position = hit.getPosition();
     auto normal = object->getNormal(position);
 
-    //std::cout << "Hit point is " << position.x << " " << position.y << " " << position.z << std::endl;
-    //std::cout << "Its normal is " << normal.x << " " << normal.y << " " << normal.z << std::endl;
-
     // Middle point of normal distribution
     auto middle = position + 0.001 * normal;
 
@@ -179,20 +170,9 @@ std::vector<std::pair<Vector, double>> BssrdfMaterial::_samplePoints(const Inter
         right = Vector{1.0, 0.0, 0.0};
     auto up = glm::normalize(glm::cross(normal, right));
 
-    //std::cout << "ONB is [" << right.x << ";" << right.y << ";" << right.z << " "
-    //    << up.x << ";" << up.y << ";" << up.z << " "
-    //    << normal.x << ";" << normal.y << ";" << normal.z << std::endl;
-
-    //double _effectiveTransportCoeff = 10;
-
-    // skin
-    //double Ratio = 12.46;
-    double Ratio = 6;
+    double Ratio = 6.0;
     double Rmax = std::sqrt(1.0 / (2.0 * _effectiveTransportCoeff * Ratio));
     double Rmax2 = Rmax * Rmax;
-
-    /*     double Rmax = 1.5;
-    double Rmax2 = Rmax * Rmax;*/
 
     for (std::uint32_t i = 0; i < 20; ++i)
     {
@@ -202,19 +182,13 @@ std::vector<std::pair<Vector, double>> BssrdfMaterial::_samplePoints(const Inter
         double r =
             std::sqrt(std::log(1.0 - eps1 * (1.0 - std::exp(-_effectiveTransportCoeff * Rmax2))) / -_effectiveTransportCoeff);
         double theta = 2.0 * M_PI * eps2;
-        //std::cout << "---------------- SAMPLE " << i << std::endl;
 
         // Transform back to cartesian coordinates
         double x = r * std::cos(theta);
         double y = r * std::sin(theta);
 
-        //std::cout << "eps = " << eps << std::endl;
-        //std::cout << "r = " << r << " and theta = " << theta << std::endl;
-        //std::cout << "x = " << x << " and y = " << y << std::endl;
-
         // Find the origin of the probe ray in the local space
         auto origin = middle + x * right + y * up;
-        //std::cout << "Probe ray origin has position " << origin.x << " " << origin.y << " " << origin.z << std::endl;
 
         // Cast probe ray down to the object in opposite direction of normal
         //Ray ray(origin, -normal);
@@ -225,11 +199,7 @@ std::vector<std::pair<Vector, double>> BssrdfMaterial::_samplePoints(const Inter
             auto samplePos = hit.getPosition();
             auto pdf = gaussianSample2DPdf(r, _effectiveTransportCoeff, Rmax2);
             result.push_back(std::make_pair(samplePos, pdf));
-            /*std::stringstream ss;
-            ss << "Sampling point with Rmax = "  << Rmax << ", Coef = " << _effectiveTransportCoeff << " "<< x << " " << y << " " << pdf << std::endl;
-            std::cout << ss.str();*/
         }
-        //std::cout << std::endl;
     }
 
     return result;
