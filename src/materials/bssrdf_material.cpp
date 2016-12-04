@@ -36,7 +36,7 @@ const Color& BssrdfMaterial::getScatterCoeff() const
 
 Color BssrdfMaterial::calculateColor(const Intersection& hit, const Scene& scene, const std::vector<const Light*>&) const
 {
-    return _single(hit, scene) /*+ _diffuse(hit, scene)*/;
+    return _single(hit, scene) + _diffuse(hit, scene);
 }
 
 inline double exponentialPdf(double x, double falloff)
