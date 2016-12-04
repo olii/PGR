@@ -265,7 +265,7 @@ double BssrdfMaterial::_exponentialPdf(double x, double lambda) const
 
 double BssrdfMaterial::_phaseFunction(const Vector& v1, const Vector& v2) const
 {
-    double cosine = std::max(0.0, glm::dot(v1, v2));
+    double cosine = glm::dot(v1, v2);
     double phase2 = _phase * _phase;
     double denom = 1.0 + phase2 - 2.0 * _phase * cosine;
     double denom3 = denom * denom * denom;
