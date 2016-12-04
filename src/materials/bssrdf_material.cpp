@@ -48,7 +48,7 @@ Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
     auto rayOut = -hit.getRayDirection();
     auto normalOut = object->getNormal(hit.getPosition());
     auto refractOut = _refract(rayOut, normalOut);
-    double cosOut = std::max(0.0, std::abs(glm::dot(normalOut, rayOut)));
+    double cosOut = std::max(0.0, glm::dot(normalOut, rayOut));
 
     double fresnelOut = _Fresnel(cosOut);
     double falloff = colorLuminance(_reducedExtinctionCoeff);
@@ -58,7 +58,6 @@ Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
     std::size_t numSamples = 1;
     for (std::size_t i = 0; i < numSamples; ++i)
     {
-
         double distance = getRandomExponential(falloff);
         auto volumePosition = hit.getPosition() + distance * refractOut;
 
@@ -67,11 +66,8 @@ Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
 
         Ray ray(volumePosition, light->getPosition() - volumePosition);
         auto selfHit = object->intersects(ray);
-        if (!selfHit || selfHit.getObject() != object)
+        if (!selfHit)
             continue;
-
-        S1 += Color{0, 1, 0};
-        continue;
 
         auto positionIn = selfHit.getPosition();
         auto normalIn = object->getNormal(positionIn);
@@ -79,7 +75,7 @@ Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
             continue;
 
         auto rayIn = glm::normalize(light->getPosition() - positionIn);
-        double cosIn = std::max(0.0, std::abs(glm::dot(normalIn, rayIn)));
+        double cosIn = std::max(0.0, glm::dot(normalIn, rayIn));
         double fresnelIn = _Fresnel(cosIn);
         double geometryFactor = glm::dot(normalIn, refractOut) / cosIn;
         Color combinedExtinctionCoeff = _reducedExtinctionCoeff + geometryFactor * _reducedExtinctionCoeff;
@@ -185,7 +181,7 @@ std::vector<std::pair<Vector, double>> BssrdfMaterial::_samplePoints(const Inter
     // skin
     //double Ratio = 12.46;
     double Ratio = 6;
-    double Rmax = sqrt(1 / (2 * _effectiveTransportCoeff * Ratio));
+    double Rmax = std::sqrt(1.0 / (2.0 * _effectiveTransportCoeff * Ratio));
     double Rmax2 = Rmax * Rmax;
 
     /*     double Rmax = 1.5;
