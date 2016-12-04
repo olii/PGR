@@ -71,7 +71,10 @@ Intersection Cube::intersects(const Ray& ray) const
         return {};
 
     // return first hit (tmin)
-    return {tmin, ray.getPoint(tmin), ray.getDirection(), this};
+    if (tmin >= 0.0)
+        return {tmin, ray.getPoint(tmin), ray.getDirection(), this};
+    else
+        return {tmax, ray.getPoint(tmax), ray.getDirection(), this};
 }
 
 Vector Cube::getNormal(const Vector& position) const
