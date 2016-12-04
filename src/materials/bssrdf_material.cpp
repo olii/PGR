@@ -49,7 +49,7 @@ Color BssrdfMaterial::_diffuse(const Intersection& hit, const Scene& scene) cons
     // Fresnel out of surface (to camera)
     auto normalOut = hit.getObject()->getNormal(hit.getPosition());
     auto cameraDirOut = glm::normalize(scene.getCamera().getPosition() - hit.getPosition());
-    double fresnelOut = _Fresnel(std::abs(glm::dot(cameraDirOut, normalOut)));
+    double fresnelOut = _Fresnel(std::max(0.0, glm::dot(cameraDirOut, normalOut)));
 
     //std::cout << "Fo = " << _Fresnel(cosOut) << std::endl;
 
@@ -64,17 +64,19 @@ Color BssrdfMaterial::_diffuse(const Intersection& hit, const Scene& scene) cons
 
         // Fresnel to the surface (from light)
         auto normalIn = hit.getObject()->getNormal(sample);
+
         auto lights = scene.castShadowRays(sample, hit.getObject());
         if (lights.empty())
             continue;
+
 
         Color acc{0.0};
         for (const auto& light : lights)
         {
             auto lightDirIn = glm::normalize(light->getPosition() - sample);
-            double cosIn = std::abs(glm::dot(lightDirIn, normalIn));
+            double cosIn = std::max( 0.0, glm::dot(lightDirIn, normalIn));
             double fresnelIn = _Fresnel(cosIn);
-            acc += 1.0 / M_PI * fresnelIn * Rd * fresnelOut * (light->getColor() * cosIn);
+            acc += (1.0 / M_PI) * fresnelIn * Rd * fresnelOut * (light->getColor() * cosIn);
         }
 
         Sd += acc / static_cast<double>(lights.size());
