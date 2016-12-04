@@ -41,6 +41,11 @@ Color BssrdfMaterial::calculateColor(const Intersection& hit, const Scene& scene
     return _single(hit, scene) /*+ _diffuse(hit, scene)*/;
 }
 
+inline double exponentialPdf(double x, double falloff)
+{
+    return falloff * std::exp(-falloff * x);
+}
+
 Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
 {
     auto object = hit.getObject();
@@ -85,9 +90,11 @@ Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
         double photonTravelDistance = volumeSampleDistanceToIn * cosIn / (std::sqrt(1.0 - invEta2 * (1.0 - cosIn * cosIn)));
         double p = _phaseFunction(rayIn, refractOut);
 
-        S1 += ((_scatterCoeff * fresnelIn * fresnelOut * p) / combinedExtinctionCoeff) *
+        auto acc = ((_scatterCoeff * fresnelIn * fresnelOut * p) / combinedExtinctionCoeff) *
             glm::exp(-photonTravelDistance * _reducedExtinctionCoeff) * glm::exp(-distance * _reducedExtinctionCoeff) *
             light->getColor();
+
+        S1 += (acc/* /exponentialPdf(distance,falloff*/);
     }
 
     S1 /= numSamples;
