@@ -1,6 +1,7 @@
 #include <chrono>
 #include <iostream>
 #include <thread>
+#include <sstream>
 
 #include <glm/gtx/norm.hpp>
 
@@ -13,13 +14,13 @@
 BssrdfMaterial::BssrdfMaterial(const Color& color, const Color& absorbCoeff, const Color& scatterCoeff, double phase, double eta)
   : Material(color), _absorbCoeff(absorbCoeff), _scatterCoeff(scatterCoeff), _phase(phase), _eta(eta)
 {
-    _reducedScatteringCoeff = _scatterCoeff * (1.0 - _phase);                                           // sigma_a
-    _reducedExtinctionCoeff = _reducedScatteringCoeff + _absorbCoeff;                                   // sigma_t'
-    _reducedAlbedo = _reducedScatteringCoeff / _reducedExtinctionCoeff;                                 // alpha'
-    _effectiveTransportCoeff = colorLuminance(glm::sqrt(3.0 * _absorbCoeff * _reducedExtinctionCoeff)); // sigma_tr
-    _fresnelDiffuseReflectance = _FdrIntegralApprox(_eta);                                              // F_dr
-    _boundary = (1.0 + _fresnelDiffuseReflectance) / (1.0 - _fresnelDiffuseReflectance);                // A
-    _positiveDipoleDistance = Color{1.0f, 1.0f, 1.0f} / _reducedExtinctionCoeff;                        // z_r
+    _reducedScatteringCoeff = _scatterCoeff * (1.0 - _phase);                                             // sigma_a
+    _reducedExtinctionCoeff = _reducedScatteringCoeff + _absorbCoeff;                                     // sigma_t'
+    _reducedAlbedo = _reducedScatteringCoeff / _reducedExtinctionCoeff;                                   // alpha'
+    _effectiveTransportCoeff = colorLuminance(glm::sqrt(3.0 * _absorbCoeff * _reducedExtinctionCoeff));   // sigma_tr
+    _fresnelDiffuseReflectance = _FdrIntegralApprox(_eta);                                                // F_dr
+    _boundary = (1.0 + _fresnelDiffuseReflectance) / (1.0 - _fresnelDiffuseReflectance);                  // A
+    _positiveDipoleDistance = Color{1.0f, 1.0f, 1.0f} / _reducedExtinctionCoeff;                          // z_r
     //_negativeDipoleDistance = _positiveDipoleDistance + 4.0 * _boundary * (1.0 / (3.0 * _reducedExtinctionCoeff)); // z_v
     _negativeDipoleDistance = _positiveDipoleDistance * (1.0 + 4.0 / 3.0 * _boundary);   // z_v
 }
@@ -55,8 +56,10 @@ Color BssrdfMaterial::_diffuse(const Intersection& hit, const Scene& scene) cons
 
     Color Sd{0.0};
     auto samples = _samplePoints(hit, scene);
-    for (const auto& sample : samples)
+    for (const auto& samplePair : samples)
     {
+        const auto& sample = samplePair.first;
+
         // Rd function
         auto distance2 = glm::length2(hit.getPosition() - sample);
         Color Rd = _Rd(distance2);
@@ -69,29 +72,42 @@ Color BssrdfMaterial::_diffuse(const Intersection& hit, const Scene& scene) cons
         if (lights.empty())
             continue;
 
-
         Color acc{0.0};
         for (const auto& light : lights)
         {
             auto lightDirIn = glm::normalize(light->getPosition() - sample);
-            double cosIn = std::max( 0.0, glm::dot(lightDirIn, normalIn));
+            double cosIn = std::max(0.0, glm::dot(lightDirIn, normalIn));
             double fresnelIn = _Fresnel(cosIn);
             acc += (1.0 / M_PI) * fresnelIn * Rd * fresnelOut * (light->getColor() * cosIn);
         }
 
-        Sd += acc / static_cast<double>(lights.size());
+        acc /= samplePair.second;
+        acc /= static_cast<double>(lights.size());
+
+        Sd += acc;
     }
 
     Sd /= samples.size();
     return Sd;
 }
 
-std::vector<Vector> BssrdfMaterial::_samplePoints(const Intersection& hit, const Scene& scene) const
+double gaussianSample2DPdf(float dist, float falloff)
 {
-    static thread_local std::mt19937
-        prng(std::chrono::system_clock::now().time_since_epoch().count() ^ std::hash<std::thread::id>{}(std::this_thread::get_id()));
+    return (1.0 / M_PI) * falloff * exp(-falloff * (dist * dist));
+}
 
-    std::vector<Vector> result;
+inline double gaussianSample2DPdf(double dist, double falloff, double Rmax2)
+
+{
+    return gaussianSample2DPdf(dist, falloff) / (1.0 - exp(-falloff * Rmax2));
+}
+
+std::vector<std::pair<Vector, double>> BssrdfMaterial::_samplePoints(const Intersection& hit, const Scene& scene) const
+{
+    static thread_local std::mt19937 prng(
+        std::chrono::system_clock::now().time_since_epoch().count() ^ std::hash<std::thread::id>{}(std::this_thread::get_id()));
+
+    std::vector<std::pair<Vector, double>> result;
 
     auto object = hit.getObject();
     auto position = hit.getPosition();
@@ -114,8 +130,16 @@ std::vector<Vector> BssrdfMaterial::_samplePoints(const Intersection& hit, const
     //    << up.x << ";" << up.y << ";" << up.z << " "
     //    << normal.x << ";" << normal.y << ";" << normal.z << std::endl;
 
-    double Rmax = 0.1;
+    //double _effectiveTransportCoeff = 10;
+
+    // skin
+    //double Ratio = 12.46;
+    double Ratio = 6;
+    double Rmax = sqrt(1 / (2 * _effectiveTransportCoeff * Ratio));
     double Rmax2 = Rmax * Rmax;
+
+    /*     double Rmax = 1.5;
+    double Rmax2 = Rmax * Rmax;*/
 
     for (std::uint32_t i = 0; i < 25; ++i)
     {
@@ -146,8 +170,11 @@ std::vector<Vector> BssrdfMaterial::_samplePoints(const Intersection& hit, const
         if (hit)
         {
             auto samplePos = hit.getPosition();
-            result.push_back(samplePos);
-            //std::cout << "Sampling point " << samplePos.x << " " << samplePos.y << " " << samplePos.z << std::endl;
+            auto pdf = gaussianSample2DPdf(r, _effectiveTransportCoeff, Rmax2);
+            result.push_back(std::make_pair(samplePos, pdf));
+            /*std::stringstream ss;
+            ss << "Sampling point with Rmax = "  << Rmax << ", Coef = " << _effectiveTransportCoeff << " "<< x << " " << y << " " << pdf << std::endl;
+            std::cout << ss.str();*/
         }
         //std::cout << std::endl;
     }

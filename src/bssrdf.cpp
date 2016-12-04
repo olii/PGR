@@ -16,6 +16,10 @@
 #include <chrono>
 #include <thread>
 
+#ifdef __MINGW32__
+#include <windows.h>
+#endif
+
 using namespace std::literals;
 
 namespace {
@@ -34,19 +38,26 @@ int main(int, char* [])
         return 1;
     }
 
+#ifdef __MINGW32__
+    AllocConsole();
+    freopen("CONIN$", "r", stdin);
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);
+#endif
+
     auto redMaterial = std::make_shared<BrdfMaterial>("red"_rgb, 1.0, 1.0);
     auto greenMaterial = std::make_shared<BrdfMaterial>("green"_rgb, 1.0, 1.0);
     auto blueMaterial = std::make_shared<BrdfMaterial>("blue"_rgb, 1.0, 1.0);
-    auto redBssrdfMaterial = std::make_shared<BssrdfMaterial>("red"_rgb, Color{0.003, 0.1, 0.05}, Color{10.2, 5.5, 3.2}, 0.0, 1.9);
+    auto redBssrdfMaterial = std::make_shared<BssrdfMaterial>(Color{0.92,0.92,0.99}, Color{0.0021, 0.0041, 0.0071}, Color{2.19, 2.62, 3.00}, 0.0, 1.3);
 
     Screen screen(surface, "purple"_rgb);
     Scene scene({screen, {0.0, 2.0, 2.0}, {0.0, 0.0, 0.0}});
-    scene.addLight(std::make_unique<Light>(Vector{1.5, 1.5, -1.5}, "white"_rgb));
+    scene.addLight(std::make_unique<Light>(Vector{1.5, 1.5, -1.5}, Color{10.0,10.0, 10.0}));
     //scene.addLight(std::make_unique<Light>(Vector{0.0, 1.0, -3.5}, "white"_rgb));
     scene.addObject(std::make_unique<Sphere>(Vector{0.0, 0.0, 0.0}, 1.0, redMaterial));
     scene.addObject(std::make_unique<Sphere>(Vector{0.0, -0.25, -2.0}, 1.0, greenMaterial));
     scene.addObject(std::make_unique<Sphere>(Vector{0.0, 0.0, -5.0}, 1.0, redBssrdfMaterial));
-//    scene.addObject(std::make_unique<Plane>(Vector{0.0, -15.0, 0.0}, Vector{0.0, 1.0, 0.0} , greenMaterial)); 
+    //    scene.addObject(std::make_unique<Plane>(Vector{0.0, -15.0, 0.0}, Vector{0.0, 1.0, 0.0} , greenMaterial));
     //scene.addObject(std::make_unique<Cube>(Vector{-3.0, 0.0, -1.0}, 2.0, redBssrdfMaterial));
     scene.addObject(std::make_unique<Cube>(Vector{3.0, 0.0, 0.0}, 1.0, redBssrdfMaterial));
 
@@ -59,7 +70,7 @@ int main(int, char* [])
 
     while (running)
     {
-        while(SDL_PollEvent(&event) > 0)
+        while (SDL_PollEvent(&event) > 0)
         {
             switch (event.type)
             {

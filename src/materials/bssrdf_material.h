@@ -18,7 +18,7 @@ private:
     Color _single(const Intersection& hit, const Scene& scene) const;
     Color _diffuse(const Intersection& hit, const Scene& scene) const;
 
-    std::vector<Vector> _samplePoints(const Intersection& hit, const Scene& scene) const;
+    std::vector<std::pair<Vector, double>> _samplePoints(const Intersection& hit, const Scene& scene) const;
     double _FdrIntegralApprox(double eta);
     Color _Rd(double distance) const;
     double _Fresnel(double angle) const;
