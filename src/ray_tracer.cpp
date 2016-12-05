@@ -6,6 +6,7 @@
 #include "ray.h"
 #include "ray_tracer.h"
 #include "scene.h"
+#include "settings.h"
 
 namespace {
 
@@ -54,10 +55,15 @@ RayTracer::Result RayTracer::_raytracePixel(Task task)
     std::uint32_t y = std::get<1>(task);
     const Scene* scene = std::get<2>(task);
 
+    static std::size_t numSamples = Settings::instance().isAAEnabled() ? Settings::instance().getAASamplesCount() : 1;
+    static auto getRay = Settings::instance().isAAEnabled() ?
+        std::bind(&Scene::getRayAA, scene, std::placeholders::_1, std::placeholders::_2) :
+        std::bind(&Scene::getRay, scene, std::placeholders::_1, std::placeholders::_2);
+
     Color color;
-    for (int samples = 0; samples < (AA_ENABLE ? AA_SAMPLES : 1); samples++)
+    for (std::size_t samples = 0; samples < numSamples; samples++)
     {
-        auto ray = AA_ENABLE ? scene->getRayAA(x, y) : scene->getRay(x, y);
+        auto ray = getRay(x, y);
         auto hit = scene->castRay(ray);
 
         if (hit)
@@ -71,8 +77,6 @@ RayTracer::Result RayTracer::_raytracePixel(Task task)
         }
     }
 
-    if (AA_ENABLE)
-        color /= static_cast<double>(AA_SAMPLES);
-
+    color /= static_cast<double>(numSamples);
     return std::make_tuple(x, y, color);
 }

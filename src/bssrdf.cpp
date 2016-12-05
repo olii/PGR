@@ -33,6 +33,7 @@ const std::size_t ScreenHeight = 600;
 
 const std::size_t DefaultSingleScatterSamples = 25;
 const std::size_t DefaultMultiScatterSamples = 25;
+const std::size_t DefaultAASamples = 0;
 
 }
 
@@ -183,17 +184,18 @@ void printHelp()
 {
     std::cout << "Project PGR 2016/2017 - Marek Milkovic, Oliver Nemcek, Vladimir Cillo\n"
               << "Usage:\n"
-              << "\tbssrdf JSON_FILE [SS_SAMPLES MS_SAMPLES]\n"
+              << "\tbssrdf JSON_FILE [SS_SAMPLES MS_SAMPLES [AA_SAMPLES]]\n"
               << "\n"
               << "JSON_FILE                                             JSON file representing scene (example scenes are in scenes/ folder)\n"
               << "SS_SAMPLES                                            Number of samples for single-scattering (Default: " << DefaultSingleScatterSamples << ")\n"
-              << "MS_SAMPLES                                            Number of samples for multi-scattering (Default: " << DefaultMultiScatterSamples << ")"
+              << "MS_SAMPLES                                            Number of samples for multi-scattering (Default: " << DefaultMultiScatterSamples << ")\n"
+              << "AA_SAMPLES                                            Number of samples for anti-aliasing. 0 for no anti-aliasing. (Default: " << DefaultAASamples << ")\n"
               << std::endl;
 }
 
 int main(int argc, char* argv[])
 {
-    if (argc != 2 && argc != 4)
+    if (argc != 2 && argc != 4 && argc != 5)
     {
         printHelp();
         return 0;
@@ -221,15 +223,23 @@ int main(int argc, char* argv[])
 
     std::size_t singleScatterSamples = DefaultSingleScatterSamples;
     std::size_t multiScatterSamples = DefaultMultiScatterSamples;
-    if (argc == 4)
+    if (argc >= 4)
     {
         std::stringstream ss(std::string(argv[2]) + " " + argv[3]);
         ss >> singleScatterSamples;
         ss >> multiScatterSamples;
     }
 
+    std::size_t aaSamples = DefaultAASamples;
+    if (argc == 5)
+    {
+        std::stringstream ss(argv[4]);
+        ss >> aaSamples;
+    }
+
     Settings::instance().setSingleScatterSamplesCount(singleScatterSamples);
     Settings::instance().setMultiScatterSamplesCount(multiScatterSamples);
+    Settings::instance().setAASamplesCount(aaSamples);
 
     RayTracer raytracer(std::thread::hardware_concurrency());
 
