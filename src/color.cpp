@@ -12,7 +12,7 @@ Color operator"" _rgb(const char* str, std::size_t)
         return {0.0f, 1.0f, 0.0f};
     else if (std::strcmp(str, "blue") == 0)
         return {0.0f, 0.0f, 1.0f};
-    else if (std::strcmp(str, "purple") == 0)
+    else if (std::strcmp(str, "navy") == 0)
         return {0.13f, 0.0f, 0.31f};
 
     return {0.0f, 0.0f, 0.0f};

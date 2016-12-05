@@ -50,7 +50,7 @@ int main(int, char* [])
     auto blueMaterial = std::make_shared<BrdfMaterial>("blue"_rgb, 1.0, 1.0);
     auto redBssrdfMaterial = std::make_shared<BssrdfMaterial>(Color{0.0021, 0.0041, 0.0071}, Color{2.19, 2.62, 3.00}, 0.0, 1.3);
 
-    Screen screen(surface, "purple"_rgb);
+    Screen screen(surface, "navy"_rgb);
     Scene scene({screen, {1.5, 1.5, -1.5}, {3.0, 0.0, 0.0}});
     scene.addLight(std::make_unique<Light>(Vector{1.5, 1.5, -1.5}, Color{10.0,10.0, 10.0}));
     //scene.addLight(std::make_unique<Light>(Vector{0.0, 1.0, -3.5}, "white"_rgb));
