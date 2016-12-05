@@ -19,15 +19,15 @@ RayTracer::RayTracer(std::size_t numOfThreads) : _threadPool(numOfThreads, std::
     _threadPool.start();
 }
 
-void RayTracer::raytrace(const Scene& scene)
+void RayTracer::raytrace(Scene* scene)
 {
-    auto& screen = scene.getCamera().getScreen();
+    auto& screen = scene->getCamera().getScreen();
 
     for (std::uint32_t y = 0; y < screen.getHeight(); ++y)
     {
         for (std::uint32_t x = 0; x < screen.getWidth(); ++x)
         {
-            _threadPool.enqueueTask(std::make_tuple(x, y, &scene));
+            _threadPool.enqueueTask(std::make_tuple(x, y, scene));
         }
     }
 

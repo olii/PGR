@@ -274,7 +274,7 @@ int main(int argc, char* argv[])
         }
         if (redraw)
         {
-            raytracer.raytrace(*scene.get());
+            raytracer.raytrace(scene.get());
             SDL_UpdateWindowSurface(window);
             redraw = false;
         }

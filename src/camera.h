@@ -12,7 +12,8 @@ class Camera
 public:
     Camera(Screen& screen, const Vector& position, const Vector& lookAtPoint, double fov = 60.0);
 
-    Screen& getScreen() const;
+    Screen& getScreen();
+    const Screen& getScreen() const;
     const Vector& getPosition() const;
     Ray getRay(double x, double y) const;
     Ray getRayAA(double x, double y) const;
@@ -30,7 +31,7 @@ public:
 private:
     void _calculateLocalSpace();
 
-    Screen& _screen;
+    Screen _screen;
     Vector _position, _lookAtPoint;
     double _fov;
 

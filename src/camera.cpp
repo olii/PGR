@@ -29,7 +29,12 @@ Camera::Camera(Screen& screen, const Vector& position, const Vector& lookAtPoint
     _calculateLocalSpace();
 }
 
-Screen& Camera::getScreen() const
+Screen& Camera::getScreen()
+{
+    return _screen;
+}
+
+const Screen& Camera::getScreen() const
 {
     return _screen;
 }

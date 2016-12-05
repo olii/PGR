@@ -20,7 +20,7 @@ public:
 
     RayTracer(std::size_t numOfThreads);
 
-    void raytrace(const Scene& scene);
+    void raytrace(Scene* scene);
     void stop();
 
 private:
