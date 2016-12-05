@@ -1,6 +1,8 @@
 #include <glm/gtx/rotate_vector.hpp>
+
 #include "camera.h"
 #include "color.h"
+#include "multithreading/thread_safe_prng.h"
 #include "ray.h"
 #include "shapes/sphere.h"
 
@@ -10,7 +12,7 @@ const Vector Up = {0.0, 1.0, 0.0};
 }
 
 Camera::Camera(Screen& screen, const Vector& position, const Vector& lookAtPoint, double fov /* = 45.0*/)
-  : _screen(screen), _position(position), _lookAtPoint(lookAtPoint), _fov(fov), _rng(std::random_device{}()), _dist(-0.5,0.5)
+  : _screen(screen), _position(position), _lookAtPoint(lookAtPoint), _fov(fov)
 {
     _aspectRatio = static_cast<double>(screen.getWidth()) / static_cast<double>(screen.getHeight());
     _halfFovTan = tan(0.5 * fov * 180.0 / M_PI);
@@ -48,8 +50,8 @@ Ray Camera::getRay(double x, double y) const
 
 Ray Camera::getRayAA(double x, double y) const
 {
-    const double xx = x + _random();
-    const double yy = y + _random();
+    const double xx = x + getRandomUniform(-0.5, 0.5);
+    const double yy = y + getRandomUniform(-0.5, 0.5);
     return getRay(xx, yy);
 }
 

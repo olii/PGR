@@ -29,7 +29,6 @@ public:
 
 private:
     void _calculateLocalSpace();
-    inline double _random() const { return _dist(_rng); }
 
     Screen& _screen;
     Vector _position, _lookAtPoint;
@@ -38,10 +37,6 @@ private:
     double _aspectRatio;
     double _halfFovTan;
     Vector _localForward, _localUp, _localRight;
-
-    // random AA
-    mutable std::mt19937 _rng;
-    mutable std::uniform_real_distribution<double> _dist;
 
     // precomputed values
     double _halfFovTan_aspectRatio;

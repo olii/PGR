@@ -23,3 +23,10 @@ double getRandomUniform()
         std::chrono::system_clock::now().time_since_epoch().count() ^ std::hash<std::thread::id>{}(std::this_thread::get_id()));
     return std::uniform_real_distribution<double>(0.0, 1.0)(prng);
 }
+
+double getRandomUniform(double min/* = 0.0*/, double max/* = 1.0*/)
+{
+    static thread_local std::mt19937 prng(
+        std::chrono::system_clock::now().time_since_epoch().count() ^ std::hash<std::thread::id>{}(std::this_thread::get_id()));
+    return std::uniform_real_distribution<double>(min, max)(prng);
+}
