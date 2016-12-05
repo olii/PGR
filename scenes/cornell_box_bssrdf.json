@@ -1,7 +1,7 @@
 {
     "background": { "red": 0.13, "green": 0.0, "blue": 0.31 },
     "camera": {
-        "position": { "x": 0.0, "y": 0.0, "z": 50.0 },
+        "position": { "x": 0.0, "y": 0.0, "z": 1.25 },
         "look_at": { "x": 0, "y": 0, "z": 0 }
     },
     "materials": [
@@ -26,48 +26,48 @@
     "objects": [
         {
             "type": "plane", "material": "pink",
-            "position": { "x": 0, "y": -20, "z": 0 },
+            "position": { "x": 0, "y": -0.5, "z": 0 },
             "normal": { "x": 0, "y": 1, "z": 0 },
-            "edge": 20
+            "edge": 0.5
         },
         {
             "type": "plane", "material": "pink",
-            "position": { "x": 0, "y": 20, "z": 0 },
+            "position": { "x": 0, "y": 0.5, "z": 0 },
             "normal": { "x": 0, "y": -1, "z": 0 },
-            "edge": 20
+            "edge": 0.5
         },
         {
             "type": "plane", "material": "green",
-            "position": { "x": 20, "y": 0, "z": 0 },
+            "position": { "x": 0.5, "y": 0, "z": 0 },
             "normal": { "x": -1, "y": 0, "z": 0 },
-            "edge": 20
+            "edge": 0.5
         },
         {
             "type": "plane", "material": "green",
-            "position": { "x": -20, "y": 0, "z": 0 },
+            "position": { "x": -0.5, "y": 0, "z": 0 },
             "normal": { "x": 1, "y": 0, "z": 0 },
-            "edge": 20
+            "edge": 0.5
         },
         {
             "type": "plane", "material": "pink",
-            "position": { "x": 0, "y": 0, "z": -20 },
+            "position": { "x": 0, "y": 0, "z": -0.5 },
             "normal": { "x": 0, "y": 0, "z": 1 },
-            "edge": 20
+            "edge": 0.5
         },
         {
             "type": "cube", "material": "marble",
-            "position": { "x": -10.0, "y": -15.5, "z": 0 },
-            "edge": 9
+            "position": { "x": -0.25, "y": -0.3875, "z": 0 },
+            "edge": 0.225
         },
         {
             "type": "sphere", "material": "marble",
-            "position": { "x": 5.5, "y": 3, "z": 3 },
-            "radius": 5
+            "position": { "x": 0.1375, "y": 0.075, "z": 0.075 },
+            "radius": 0.125
         }
     ],
     "lights": [
         {
-            "position": { "x": 0.0, "y": 19.9, "z": 10.0 },
+            "position": { "x": 0.0, "y": 0.48, "z": -0.25 },
             "color": { "red": 10.0, "green": 10.0, "blue": 10.0 }
         }
     ]
