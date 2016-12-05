@@ -144,6 +144,18 @@ std::unique_ptr<Scene> parseJson(const std::string& filePath, SDL_Surface* surfa
             double edge = object.isMember("edge") ? object["edge"].asDouble() : 1.0;
             scene->addObject(std::make_unique<Cube>(position, edge, material));
         }
+        else if (type == "plane")
+        {
+            Vector normal{0.0, 1.0, 0.0};
+            if (object.isMember("normal"))
+            {
+                normal.x = object["normal"]["x"].asDouble();
+                normal.y = object["normal"]["y"].asDouble();
+                normal.z = object["normal"]["z"].asDouble();
+            }
+            double edge = object.isMember("edge") ? object["edge"].asDouble() : 1.0;
+            scene->addObject(std::make_unique<Plane>(position, normal, edge, material));
+        }
     }
 
     for (const auto& light : root["lights"])
