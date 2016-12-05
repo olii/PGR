@@ -129,6 +129,11 @@ std::unique_ptr<Scene> parseJson(const std::string& filePath, SDL_Surface* surfa
         auto itr = materials.find(materialName);
         if (itr != materials.end())
             material = itr->second;
+        else
+        {
+            std::cerr << "Unable to find material '" << materialName << "'\n";
+            return nullptr;
+        }
 
         Vector position;
         position.x = object["position"]["x"].asDouble();
