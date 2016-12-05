@@ -59,17 +59,18 @@ std::unique_ptr<Scene> parseJson(const std::string& filePath, SDL_Surface* surfa
     std::unordered_map<std::string, std::shared_ptr<Material>> materials;
     for (const auto& material : root["materials"])
     {
-        if (!material.isMember("type") || !material.isMember("name"))
+        if (!material.isMember("type") || !material.isMember("name") || !material.isMember("color"))
             continue;
+
+        Color color;
+        color.r = material["color"]["red"].asDouble();
+        color.g = material["color"]["green"].asDouble();
+        color.b = material["color"]["blue"].asDouble();
 
         auto type = material["type"].asString();
         auto name = material["name"].asString();
         if (type == "brdf")
         {
-            Color color;
-            color.r = material["color"]["red"].asDouble();
-            color.g = material["color"]["green"].asDouble();
-            color.b = material["color"]["blue"].asDouble();
             double diffuse = material["diffuse"].asDouble();
             double specular = material["specular"].asDouble();
 
@@ -87,7 +88,7 @@ std::unique_ptr<Scene> parseJson(const std::string& filePath, SDL_Surface* surfa
             double phase = material["phase"].asDouble();
             double eta = material["eta"].asDouble();
 
-            materials.emplace(std::make_pair(name, std::make_shared<BssrdfMaterial>(absorb, scatter, phase, eta)));
+            materials.emplace(std::make_pair(name, std::make_shared<BssrdfMaterial>(color, absorb, scatter, phase, eta)));
         }
     }
 

@@ -12,8 +12,8 @@
 #include "settings.h"
 #include "shape.h"
 
-BssrdfMaterial::BssrdfMaterial(const Color& absorbCoeff, const Color& scatterCoeff, double phase, double eta)
-  : Material(Color{}), _absorbCoeff(absorbCoeff), _scatterCoeff(scatterCoeff), _phase(phase), _eta(eta)
+BssrdfMaterial::BssrdfMaterial(const Color& color, const Color& absorbCoeff, const Color& scatterCoeff, double phase, double eta)
+  : Material(color), _absorbCoeff(absorbCoeff), _scatterCoeff(scatterCoeff), _phase(phase), _eta(eta)
 {
     _reducedScatteringCoeff = _scatterCoeff * (1.0 - _phase);                                             // sigma_a
     _reducedExtinctionCoeff = _reducedScatteringCoeff + _absorbCoeff;                                     // sigma_t'
@@ -37,7 +37,7 @@ const Color& BssrdfMaterial::getScatterCoeff() const
 
 Color BssrdfMaterial::calculateColor(const Intersection& hit, const Scene& scene, const std::vector<const Light*>&) const
 {
-    return _single(hit, scene) + _diffuse(hit, scene);
+    return _color * (_single(hit, scene) + _diffuse(hit, scene));
 }
 
 inline double exponentialPdf(double x, double falloff)

@@ -7,7 +7,7 @@
 class BssrdfMaterial : public Material
 {
 public:
-    BssrdfMaterial(const Color& absorbCoeff, const Color& scatterCoeff, double phase, double eta);
+    BssrdfMaterial(const Color& color, const Color& absorbCoeff, const Color& scatterCoeff, double phase, double eta);
 
     const Color& getAbsorbCoeff() const;
     const Color& getScatterCoeff() const;

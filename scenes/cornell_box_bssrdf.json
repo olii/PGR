@@ -17,6 +17,7 @@
         },
         {
             "type": "bssrdf", "name": "marble",
+            "color": { "red": 1, "green": 1, "blue": 1},
             "absorb": { "red": 0.0021, "green": 0.0041, "blue": 0.0071 },
             "scatter": { "red": 2.19, "green": 2.62, "blue": 3.00 },
             "phase": 0.0, "eta": 1.3
