@@ -31,6 +31,9 @@ namespace {
 const std::size_t ScreenWidth = 800;
 const std::size_t ScreenHeight = 600;
 
+const std::size_t DefaultSingleScatterSamples = 25;
+const std::size_t DefaultMultiScatterSamples = 25;
+
 }
 
 std::unique_ptr<Scene> parseJson(const std::string& filePath, SDL_Surface* surface)
@@ -171,8 +174,8 @@ void printHelp()
               << "\tbssrdf JSON_FILE [SS_SAMPLES MS_SAMPLES]\n"
               << "\n"
               << "JSON_FILE                                             JSON file representing scene (example scenes are in scenes/ folder)\n"
-              << "SS_SAMPLES                                            Number of samples for single-scattering (Default: 25)\n"
-              << "MS_SAMPLES                                            Number of samples for multi-scattering (Default: 25)"
+              << "SS_SAMPLES                                            Number of samples for single-scattering (Default: " << DefaultSingleScatterSamples << ")\n"
+              << "MS_SAMPLES                                            Number of samples for multi-scattering (Default: " << DefaultMultiScatterSamples << ")"
               << std::endl;
 }
 
@@ -204,8 +207,8 @@ int main(int argc, char* argv[])
     if (scene == nullptr)
         return 1;
 
-    std::size_t singleScatterSamples = 25;
-    std::size_t multiScatterSamples = 25;
+    std::size_t singleScatterSamples = DefaultSingleScatterSamples;
+    std::size_t multiScatterSamples = DefaultMultiScatterSamples;
     if (argc == 4)
     {
         std::stringstream ss(std::string(argv[2]) + " " + argv[3]);
