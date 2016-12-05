@@ -2,13 +2,13 @@
 #include "intersection.h"
 #include "ray.h"
 
-Plane::Plane(const Vector& position, const Vector& normal, const std::shared_ptr<Material>& material)
-    : Shape(position, material), _normal(glm::normalize(normal))
+Plane::Plane(const Vector& position, const Vector& normal, double edge, const std::shared_ptr<Material>& material)
+    : Shape(position, material), _normal(glm::normalize(normal)), _edge(edge)
 {
 }
 
-Plane::Plane(const Vector& position, const Vector& normal, std::shared_ptr<Material>&& material)
-    : Shape(position, std::move(material)), _normal(glm::normalize(normal))
+Plane::Plane(const Vector& position, const Vector& normal, double edge, std::shared_ptr<Material>&& material)
+    : Shape(position, std::move(material)), _normal(glm::normalize(normal)), _edge(edge)
 {
 }
 
@@ -20,7 +20,11 @@ Intersection Plane::intersects(const Ray& ray) const
         float t = glm::dot(_position - ray.getOrigin(), _normal) / denom;
         if (t > 0)
         {
-            return {t, ray.getPoint(t), ray.getDirection(), this};
+            auto p = ray.getPoint(t);
+            if (std::abs(p.x - _position.x) < _edge && std::abs(p.y - _position.y) < _edge && std::abs(p.z - _position.z) < _edge)
+                return {t, p, ray.getDirection(), this};
+            else
+                return {};
         }
     }
     return {};
