@@ -1,0 +1,29 @@
+{
+    "background": { "red": 0.13, "green": 0.0, "blue": 0.31 },
+    "camera": {
+        "position": { "x": 3.6, "y": 4.0, "z": 4.0 },
+        "look_at": { "x": 0, "y": 0, "z": 0 }
+    },
+    "materials": [
+        {
+            "type": "bssrdf", "name": "vax",
+            "color": { "red": 1.0, "green": 0.95, "blue": 0.87 },
+            "absorb": { "red": 0.001, "green": 0.0041, "blue": 0.006 },
+            "scatter": { "red": 10.19, "green": 8.62, "blue": 7.00 },
+            "phase": 0.65, "eta": 1.1
+        }
+    ],
+    "objects": [
+        {
+            "type": "cube", "material": "vax",
+            "position": { "x": 0, "y": 0, "z": 0 },
+            "edge": 2.0
+        }
+    ],
+    "lights": [
+        {
+            "position": { "x": 4.0, "y": 4.0, "z": 4.0 },
+            "color": { "red": 10.0, "green": 10.0, "blue": 10.0 }
+        }
+    ]
+}
