@@ -8,5 +8,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
 find_package(SDL2 REQUIRED)
 find_package(glm REQUIRED)
+find_package(jsoncpp REQUIRED)
 
 add_subdirectory(src)

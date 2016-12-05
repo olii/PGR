@@ -1,0 +1,63 @@
+{
+    "background": {
+        "red": 0.13,
+        "green": 0.0,
+        "blue": 0.31
+    },
+    "camera": {
+        "position": {
+            "x": 9.0,
+            "y": 10.0,
+            "z": 10.0
+        },
+        "look_at": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        }
+    },
+    "materials": [
+        {
+            "type": "bssrdf",
+            "name": "marble",
+            "absorb": {
+                "red": 0.0021,
+                "green": 0.0041,
+                "blue": 0.0071
+            },
+            "scatter": {
+                "red": 2.19,
+                "green": 2.62,
+                "blue": 3.00
+            },
+            "phase": 0.0,
+            "eta": 1.3
+        }
+    ],
+    "objects": [
+        {
+            "type": "cube",
+            "material": "marble",
+            "position": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "edge": 5.0
+        }
+    ],
+    "lights": [
+        {
+            "position": {
+                "x": 4.0,
+                "y": 4.0,
+                "z": 4.0
+            },
+            "color": {
+                "red": 10.0,
+                "green": 10.0,
+                "blue": 10.0
+            }
+        }
+    ]
+}
