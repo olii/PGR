@@ -1,0 +1,72 @@
+{
+    "background": { "red": 0.13, "green": 0.0, "blue": 0.31 },
+    "camera": {
+        "position": { "x": 0.0, "y": 0.0, "z": 50.0 },
+        "look_at": { "x": 0, "y": 0, "z": 0 }
+    },
+    "materials": [
+        {
+            "type": "brdf", "name": "pink",
+            "color": { "red": 0.91, "green": 0.32, "blue": 0.29 },
+            "diffuse": 1.0
+        },
+        {
+            "type": "brdf", "name": "green",
+            "color": { "red": 0.56, "green": 1.00, "blue": 0.02 },
+            "diffuse": 1.0
+        },
+        {
+            "type": "brdf", "name": "white",
+            "color": { "red": 1, "green": 1, "blue": 1 },
+            "diffuse": 1.0
+        }
+    ],
+    "objects": [
+        {
+            "type": "plane", "material": "pink",
+            "position": { "x": 0, "y": -20, "z": 0 },
+            "normal": { "x": 0, "y": 1, "z": 0 },
+            "edge": 20
+        },
+        {
+            "type": "plane", "material": "pink",
+            "position": { "x": 0, "y": 20, "z": 0 },
+            "normal": { "x": 0, "y": -1, "z": 0 },
+            "edge": 20
+        },
+        {
+            "type": "plane", "material": "green",
+            "position": { "x": 20, "y": 0, "z": 0 },
+            "normal": { "x": -1, "y": 0, "z": 0 },
+            "edge": 20
+        },
+        {
+            "type": "plane", "material": "green",
+            "position": { "x": -20, "y": 0, "z": 0 },
+            "normal": { "x": 1, "y": 0, "z": 0 },
+            "edge": 20
+        },
+        {
+            "type": "plane", "material": "pink",
+            "position": { "x": 0, "y": 0, "z": -20 },
+            "normal": { "x": 0, "y": 0, "z": 1 },
+            "edge": 20
+        },
+        {
+            "type": "cube", "material": "white",
+            "position": { "x": -10.0, "y": -15.5, "z": 0 },
+            "edge": 9
+        },
+        {
+            "type": "sphere", "material": "white",
+            "position": { "x": 5.5, "y": 3, "z": 3 },
+            "radius": 5
+        }
+    ],
+    "lights": [
+        {
+            "position": { "x": 0.0, "y": 19.9, "z": 10.0 },
+            "color": { "red": 10.0, "green": 10.0, "blue": 10.0 }
+        }
+    ]
+}
