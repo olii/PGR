@@ -65,33 +65,35 @@ Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
         double distance = getRandomExponential(falloff);
         auto volumePosition = hit.getPosition() + distance * refractOut;
 
-        const Light* light = scene.getLights()[genRandom() % scene.getLights().size()].get();
+        Color acc{0.0};
+        for (const auto& light : scene.getLights())
+        {
+            Ray ray(volumePosition, light->getPosition() - volumePosition);
+            auto selfHit = object->intersects(ray);
+            if (!selfHit)
+                continue;
 
-        Ray ray(volumePosition, light->getPosition() - volumePosition);
-        auto selfHit = object->intersects(ray);
-        if (!selfHit)
-            continue;
+            auto positionIn = selfHit.getPosition();
+            auto normalIn = object->getNormal(positionIn);
+            if (!scene.castShadowRay(positionIn, object, light.get()))
+                continue;
 
-        auto positionIn = selfHit.getPosition();
-        auto normalIn = object->getNormal(positionIn);
-        if (!scene.castShadowRay(positionIn, object, light))
-            continue;
+            auto rayIn = glm::normalize(light->getPosition() - positionIn);
+            double cosIn = std::max(0.0, glm::dot(normalIn, rayIn));
+            double fresnelIn = _Fresnel(cosIn);
+            double geometryFactor = std::max(0.0, glm::dot(normalIn, refractOut)) / cosIn;
+            Color combinedExtinctionCoeff = _reducedExtinctionCoeff + geometryFactor * _reducedExtinctionCoeff;
+            double invEta2 = 1.0 / _eta;
+            invEta2 *= invEta2;
+            double volumeSampleDistanceToIn = glm::length(volumePosition - positionIn);
+            double photonTravelDistance = volumeSampleDistanceToIn * cosIn / (std::sqrt(1.0 - invEta2 * (1.0 - cosIn * cosIn)));
+            double p = _phaseFunction(rayIn, refractOut);
 
-        auto rayIn = glm::normalize(light->getPosition() - positionIn);
-        double cosIn = std::max(0.0, glm::dot(normalIn, rayIn));
-        double fresnelIn = _Fresnel(cosIn);
-        double geometryFactor = std::max(0.0, glm::dot(normalIn, refractOut)) / cosIn;
-        Color combinedExtinctionCoeff = _reducedExtinctionCoeff + geometryFactor * _reducedExtinctionCoeff;
-        double invEta2 = 1.0 / _eta;
-        invEta2 *= invEta2;
-        double volumeSampleDistanceToIn = glm::length(volumePosition - positionIn);
-        double photonTravelDistance = volumeSampleDistanceToIn * cosIn / (std::sqrt(1.0 - invEta2 * (1.0 - cosIn * cosIn)));
-        double p = _phaseFunction(rayIn, refractOut);
-
-        auto acc = ((_scatterCoeff * fresnelIn * fresnelOut * p) / combinedExtinctionCoeff) *
-            glm::exp(-photonTravelDistance * _reducedExtinctionCoeff) * glm::exp(-distance * _reducedExtinctionCoeff) *
-            light->getColor();
-
+            acc += ((_scatterCoeff * fresnelIn * fresnelOut * p) / combinedExtinctionCoeff) *
+                glm::exp(-photonTravelDistance * _reducedExtinctionCoeff) * glm::exp(-distance * _reducedExtinctionCoeff) *
+                light->getColor();
+        }
+        acc /= scene.getLights().size();
         S1 += acc;
     }
 
