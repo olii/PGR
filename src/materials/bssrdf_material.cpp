@@ -9,6 +9,7 @@
 #include "multithreading/thread_safe_prng.h"
 #include "ray.h"
 #include "scene.h"
+#include "settings.h"
 #include "shape.h"
 
 BssrdfMaterial::BssrdfMaterial(const Color& absorbCoeff, const Color& scatterCoeff, double phase, double eta)
@@ -58,7 +59,7 @@ Color BssrdfMaterial::_single(const Intersection& hit, const Scene& scene) const
 
     Color S1{0.0};
 
-    std::size_t numSamples = 1;
+    std::size_t numSamples = Settings::instance().getSingleScatterSamplesCount();
     for (std::size_t i = 0; i < numSamples; ++i)
     {
         double distance = getRandomExponential(falloff);
@@ -152,7 +153,7 @@ inline double gaussianSample2DPdf(double dist, double falloff, double Rmax2)
     return gaussianSample2DPdf(dist, falloff) / (1.0 - exp(-falloff * Rmax2));
 }
 
-std::vector<std::pair<Vector, double>> BssrdfMaterial::_samplePoints(const Intersection& hit, const Scene& scene) const
+std::vector<std::pair<Vector, double>> BssrdfMaterial::_samplePoints(const Intersection& hit, const Scene&) const
 {
     std::vector<std::pair<Vector, double>> result;
 
@@ -174,7 +175,8 @@ std::vector<std::pair<Vector, double>> BssrdfMaterial::_samplePoints(const Inter
     double Rmax = std::sqrt(1.0 / (2.0 * _effectiveTransportCoeff * Ratio));
     double Rmax2 = Rmax * Rmax;
 
-    for (std::uint32_t i = 0; i < 20; ++i)
+    std::size_t numSamples = Settings::instance().getMultiScatterSamplesCount();
+    for (std::uint32_t i = 0; i < numSamples; ++i)
     {
         // Just generate random number uniformly and calculate radius and angle
         double eps1 = getRandomUniform();

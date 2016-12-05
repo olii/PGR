@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <thread>
 #include <unordered_map>
 
@@ -14,6 +15,7 @@
 #include "ray.h"
 #include "ray_tracer.h"
 #include "scene.h"
+#include "settings.h"
 #include "shapes/sphere.h"
 #include "shapes/plane.h"
 #include "shapes/cube.h"
@@ -162,12 +164,24 @@ std::unique_ptr<Scene> parseJson(const std::string& filePath, SDL_Surface* surfa
     return scene;
 }
 
+void printHelp()
+{
+    std::cout << "Project PGR 2016/2017 - Marek Milkovic, Oliver Nemcek, Vladimir Cillo\n"
+              << "Usage:\n"
+              << "\tbssrdf JSON_FILE [SS_SAMPLES MS_SAMPLES]\n"
+              << "\n"
+              << "JSON_FILE                                             JSON file representing scene (example scenes are in scenes/ folder)\n"
+              << "SS_SAMPLES                                            Number of samples for single-scattering (Default: 25)\n"
+              << "MS_SAMPLES                                            Number of samples for multi-scattering (Default: 25)"
+              << std::endl;
+}
+
 int main(int argc, char* argv[])
 {
-    if (argc != 2)
+    if (argc != 2 && argc != 4)
     {
-        std::cerr << "Wrong number of parameters\n";
-        return 1;
+        printHelp();
+        return 0;
     }
 
     auto window = SDL_CreateWindow("PGR - BSSRDF", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, ScreenWidth, ScreenHeight, 0);
@@ -189,6 +203,18 @@ int main(int argc, char* argv[])
     auto scene = parseJson(filePath, surface);
     if (scene == nullptr)
         return 1;
+
+    std::size_t singleScatterSamples = 25;
+    std::size_t multiScatterSamples = 25;
+    if (argc == 4)
+    {
+        std::stringstream ss(std::string(argv[2]) + " " + argv[3]);
+        ss >> singleScatterSamples;
+        ss >> multiScatterSamples;
+    }
+
+    Settings::instance().setSingleScatterSamplesCount(singleScatterSamples);
+    Settings::instance().setMultiScatterSamplesCount(multiScatterSamples);
 
     RayTracer raytracer(std::thread::hardware_concurrency());
 
